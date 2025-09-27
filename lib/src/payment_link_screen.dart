@@ -9,8 +9,121 @@ class PaymentLinkScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("PhaJay Payment")),
-      body: Center(child: Text("Payment URL: $paymentUrl")),
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Header
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset('assets/phajay_logo.png', height: 40),
+                  const SizedBox(width: 8),
+                  const Text(
+                    'Select For Payment',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              const Text(
+                'The transaction has been successfully verified\nfor authenticity and security.',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 14, color: Colors.black87),
+              ),
+              const SizedBox(height: 20),
+
+              // Total Amount Card
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF1E3C72), Color(0xFF2A5298)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  children: const [
+                    Text(
+                      'Total Amount',
+                      style: TextStyle(color: Colors.white70, fontSize: 16),
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      '123.00 LAK',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      'September 27, 2025   23:26:25',
+                      style: TextStyle(color: Colors.white70, fontSize: 14),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 20),
+              const Text(
+                'Your safety is our top priority\nRest assured that your payment is secure. Be confident that your information will always be protected.',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 14, color: Colors.black87),
+              ),
+
+              const SizedBox(height: 30),
+
+              // Banks Payment List
+              const Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Banks Payment',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ),
+              const SizedBox(height: 10),
+
+              BankTile(bankName: 'JDB'),
+              BankTile(bankName: 'LDB'),
+              BankTile(bankName: 'BCEL'),
+              BankTile(bankName: 'INDOCHINA BANK'),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class BankTile extends StatelessWidget {
+  final String bankName;
+  const BankTile({super.key, required this.bankName});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 6),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      child: ListTile(
+        leading: const Icon(Icons.account_balance, color: Colors.blue),
+        title: Text(
+          bankName,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        subtitle: const Text('Payment processed through bank account'),
+        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+        onTap: () {
+          // TODO: handle bank selection
+        },
+      ),
     );
   }
 }
