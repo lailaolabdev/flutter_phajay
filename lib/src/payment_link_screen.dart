@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_phajay/src/qr_payment_screen.dart';
 
 class PaymentLinkScreen extends StatelessWidget {
   final String paymentUrl;
@@ -20,7 +21,10 @@ class PaymentLinkScreen extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Image.asset('assets/phajay_logo.png', height: 40),
+                  Image.asset(
+                    'packages/flutter_phajay/assets/logo-phajay.png',
+                    height: 40,
+                  ),
                   const SizedBox(width: 8),
                   const Text(
                     'Select For Payment',
@@ -121,7 +125,10 @@ class BankTile extends StatelessWidget {
         subtitle: const Text('Payment processed through bank account'),
         trailing: const Icon(Icons.arrow_forward_ios, size: 16),
         onTap: () {
-          // TODO: handle bank selection
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const QRPaymentScreen()),
+          );
         },
       ),
     );
