@@ -1,8 +1,102 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_phajay/src/helper.dart';
+import 'package:http/http.dart' as http;
 import 'package:qr_flutter/qr_flutter.dart';
 
-class QRPaymentScreen extends StatelessWidget {
-  const QRPaymentScreen({super.key});
+class QRPaymentScreen extends StatefulWidget {
+  final int amount;
+  final String description;
+  final String publicKey;
+  final String bankName;
+
+  const QRPaymentScreen({
+    super.key,
+    required this.amount,
+    required this.description,
+    required this.publicKey,
+    required this.bankName,
+  });
+
+  @override
+  State<QRPaymentScreen> createState() => _QRPaymentScreenState();
+}
+
+class _QRPaymentScreenState extends State<QRPaymentScreen> {
+  String? qrData; // will hold the QR string from API
+  bool isLoading = true;
+  String? error;
+
+  late Duration duration;
+  Timer? timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _generateQr();
+    duration = Duration(minutes: 30);
+    startTimer();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  void startTimer() {
+    timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      setState(() {
+        final seconds = duration.inSeconds - 1;
+        if (seconds < 0) {
+          timer?.cancel();
+        } else {
+          duration = Duration(seconds: seconds);
+        }
+      });
+    });
+  }
+
+  Future<void> _generateQr() async {
+    try {
+      // Adjust body and headers to match your backend requirements
+      final response = await http.post(
+        Uri.parse(
+          'https://payment-gateway.lailaolab.com/v1/api/payment/generate-jdb-qr',
+        ),
+        headers: {
+          'Content-Type': 'application/json',
+          'secretKey':
+              r"$2b$10$21qCgkB4ZX6HFUNZUrEya./tVYF0SqDEqXg3Q.gCvAuuSw5NTSelm",
+        },
+        body: jsonEncode({
+          'amount': widget.amount,
+          "description": widget.description,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        // Assuming API returns JSON like { "qrString": "..." }
+        print(data);
+        setState(() {
+          qrData = data['qrCode'];
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          error = 'Error ${response.statusCode}: ${response.reasonPhrase}';
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        error = e.toString();
+        isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,8 +138,8 @@ class QRPaymentScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const Text(
-              '123.00 LAK',
+            Text(
+              '${formatThousand(widget.amount)} LAK',
               style: TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
@@ -58,16 +152,16 @@ class QRPaymentScreen extends StatelessWidget {
               style: TextStyle(color: Colors.black54),
             ),
             const SizedBox(height: 4),
-            const Text(
-              '7613382b-5c60-4e9c-af43-b72c20db7e61',
+            Text(
+              "${widget.description}",
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.black87, fontSize: 13),
             ),
             const SizedBox(height: 20),
 
             // Countdown timer (static example)
-            const Text(
-              '00 : 29 : 53',
+            Text(
+              formatTime(duration),
               style: TextStyle(
                 fontSize: 32,
                 fontWeight: FontWeight.bold,
@@ -110,13 +204,32 @@ class QRPaymentScreen extends StatelessWidget {
                     ),
                     child: Center(
                       child: QrImageView(
-                        data: '1234567890',
+                        data: qrData ?? 'Loading...',
                         version: QrVersions.auto,
                         size: 200.0,
                       ),
                     ),
                   ),
                   const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      icon: const Icon(Icons.download),
+                      label: const Text('Open Bank App'),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        backgroundColor: Colors.blue,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      onPressed: () {
+                        // TODO: Save QR logic
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 12),
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(

@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_phajay/src/helper.dart';
 import 'package:flutter_phajay/src/qr_payment_screen.dart';
 
 class PaymentLinkScreen extends StatelessWidget {
-  final String paymentUrl;
+  final int amount;
+  final String description;
+  final String publicKey;
 
-  const PaymentLinkScreen({Key? key, required this.paymentUrl})
-    : super(key: key);
+  const PaymentLinkScreen({
+    Key? key,
+    required this.amount,
+    required this.description,
+    required this.publicKey,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -53,22 +60,22 @@ class PaymentLinkScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Column(
-                  children: const [
-                    Text(
+                  children: [
+                    const Text(
                       'Total Amount',
                       style: TextStyle(color: Colors.white70, fontSize: 16),
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     Text(
-                      '123.00 LAK',
-                      style: TextStyle(
+                      '${formatThousand(amount)} LAK',
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 32,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    SizedBox(height: 8),
-                    Text(
+                    const SizedBox(height: 8),
+                    const Text(
                       'September 27, 2025   23:26:25',
                       style: TextStyle(color: Colors.white70, fontSize: 14),
                     ),
@@ -86,19 +93,42 @@ class PaymentLinkScreen extends StatelessWidget {
               const SizedBox(height: 30),
 
               // Banks Payment List
-              const Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Banks Payment',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              InkWell(
+                onTap: () => Navigator.pop(context),
+                child: const Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Banks Payment',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
                 ),
               ),
               const SizedBox(height: 10),
 
-              BankTile(bankName: 'JDB'),
-              BankTile(bankName: 'LDB'),
-              BankTile(bankName: 'BCEL'),
-              BankTile(bankName: 'INDOCHINA BANK'),
+              BankTile(
+                bankName: 'JDB',
+                amount: amount,
+                description: description,
+                publicKey: publicKey,
+              ),
+              BankTile(
+                bankName: 'LDB',
+                amount: amount,
+                description: description,
+                publicKey: publicKey,
+              ),
+              BankTile(
+                bankName: 'BCEL',
+                amount: amount,
+                description: description,
+                publicKey: publicKey,
+              ),
+              BankTile(
+                bankName: 'INDOCHINA BANK',
+                amount: amount,
+                description: description,
+                publicKey: publicKey,
+              ),
             ],
           ),
         ),
@@ -108,8 +138,18 @@ class PaymentLinkScreen extends StatelessWidget {
 }
 
 class BankTile extends StatelessWidget {
+  final int amount;
+  final String description;
+  final String publicKey;
   final String bankName;
-  const BankTile({super.key, required this.bankName});
+
+  const BankTile({
+    super.key,
+    required this.bankName,
+    required this.amount,
+    required this.description,
+    required this.publicKey,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -127,7 +167,14 @@ class BankTile extends StatelessWidget {
         onTap: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const QRPaymentScreen()),
+            MaterialPageRoute(
+              builder: (context) => QRPaymentScreen(
+                bankName: bankName,
+                amount: amount,
+                description: description,
+                publicKey: publicKey,
+              ),
+            ),
           );
         },
       ),
