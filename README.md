@@ -1,14 +1,14 @@
 # flutter_phajay
 
-A Flutter library for showing **PhaJay payment link screens** using WebView.  
-Easily integrate PhaJay online payments into your Flutter apps.  
-Compatible with **Flutter 3.35.4**.
+PhaJay Flutter SDK
+
+The PhaJay Flutter SDK lets you create smooth and secure payment experiences inside native Android and iOS apps built with Flutter.
+It provides powerful, fully customizable UI screens and components that work out-of-the-box to collect and process users’ payment details through PhaJay’s multi-bank and QR payment network.
 
 ---
 
 ## ✨ Features
-- Open a payment link inside your app  
-- Secure in-app WebView  
+- Open a payment link inside your app   
 - Easy to use with a single widget
 
 ---
@@ -19,4 +19,4 @@ Add this to your **pubspec.yaml**:
 
 ```yaml
 dependencies:
-  flutter_phajay: ^0.0.1
+  flutter_phajay: ^X.X.X
