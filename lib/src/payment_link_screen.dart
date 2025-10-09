@@ -157,17 +157,14 @@ class BankTile extends StatelessWidget {
     String logoPath = 'packages/flutter_phajay/assets/logo-phajay.png';
     if (bankName == "JDB") {
       logoPath = 'packages/flutter_phajay/assets/jdb.png';
-    }
-    if (bankName == "BCEL") {
+    } else if (bankName == "BCEL") {
       logoPath = 'packages/flutter_phajay/assets/bcel.png';
-    }
-    if (bankName == "LDB") {
+    } else if (bankName == "LDB") {
       logoPath = 'packages/flutter_phajay/assets/ldb.png';
-    }
-    if (bankName == "INDOCHINA BANK") {
+    } else if (bankName == "INDOCHINA BANK") {
       logoPath = 'packages/flutter_phajay/assets/indochina.png';
     } else {
-      logoPath = 'packages/flutter_phajay/assets/jdb.png';
+      logoPath = 'packages/flutter_phajay/assets/bcel.png';
     }
 
     return Card(

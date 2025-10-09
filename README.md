@@ -7,6 +7,10 @@ It provides powerful, fully customizable UI screens and components that work out
 
 ---
 
+
+<img src="https://phapay-bucket.s3.ap-southeast-1.amazonaws.com/static/flutter-sdk.png" alt="Flutter-sdk-1" />
+
+
 ## ✨ Features
 - Open a payment link inside your app   
 - Easy to use with a single widget

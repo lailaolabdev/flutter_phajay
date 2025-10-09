@@ -71,16 +71,13 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
       if (widget.bankName == "JDB") {
         bankUrl =
             'https://payment-gateway.lailaolab.com/v1/api/payment/generate-jdb-qr';
-      }
-      if (widget.bankName == "BCEL") {
+      } else if (widget.bankName == "BCEL") {
         bankUrl =
             'https://payment-gateway.lailaolab.com/v1/api/payment/generate-bcel-qr';
-      }
-      if (widget.bankName == "LDB") {
+      } else if (widget.bankName == "LDB") {
         bankUrl =
             'https://payment-gateway.lailaolab.com/v1/api/payment/generate-ldb-qr';
-      }
-      if (widget.bankName == "INDOCHINA BANK") {
+      } else if (widget.bankName == "INDOCHINA BANK") {
         bankUrl =
             'https://payment-gateway.lailaolab.com/v1/api/payment/generate-ib-qr';
       } else {
@@ -176,14 +173,11 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
     String logoPath = 'packages/flutter_phajay/assets/logo-phajay.png';
     if (widget.bankName == "JDB") {
       logoPath = 'packages/flutter_phajay/assets/jdb.png';
-    }
-    if (widget.bankName == "BCEL") {
+    } else if (widget.bankName == "BCEL") {
       logoPath = 'packages/flutter_phajay/assets/bcel.png';
-    }
-    if (widget.bankName == "LDB") {
+    } else if (widget.bankName == "LDB") {
       logoPath = 'packages/flutter_phajay/assets/ldb.png';
-    }
-    if (widget.bankName == "INDOCHINA BANK") {
+    } else if (widget.bankName == "INDOCHINA BANK") {
       logoPath = 'packages/flutter_phajay/assets/indochina.png';
     } else {
       logoPath = 'packages/flutter_phajay/assets/jdb.png';

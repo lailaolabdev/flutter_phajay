@@ -1,6 +1,6 @@
 name: flutter_phajay
 description: A Flutter library for showing PhaJay payment link screen.
-version: 0.0.7
+version: 0.0.9
 homepage: https://www.phajay.co/lo
 repository: https://www.phajay.co/lo
 issue_tracker: https://www.phajay.co/lo
@@ -25,5 +25,10 @@ dev_dependencies:
 flutter:
   assets:
     - assets/
+    - assets/en.png
+    - assets/bcel.png
+    - assets/ldb.png
+    - assets/indochina.png
+    - assets/jdb.png
     - assets/en.png
     - assets/logo-phajay.png
