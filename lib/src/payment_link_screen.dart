@@ -106,19 +106,19 @@ class PaymentLinkScreen extends StatelessWidget {
               const SizedBox(height: 10),
 
               BankTile(
-                bankName: 'JDB',
+                bankName: "JDB",
                 amount: amount,
                 description: description,
                 publicKey: publicKey,
               ),
               BankTile(
-                bankName: 'LDB',
+                bankName: "LDB",
                 amount: amount,
                 description: description,
                 publicKey: publicKey,
               ),
               BankTile(
-                bankName: 'BCEL',
+                bankName: "BCEL",
                 amount: amount,
                 description: description,
                 publicKey: publicKey,
@@ -153,11 +153,31 @@ class BankTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print(bankName);
+    String logoPath = 'packages/flutter_phajay/assets/logo-phajay.png';
+    if (bankName == "JDB") {
+      logoPath = 'packages/flutter_phajay/assets/jdb.png';
+    }
+    if (bankName == "BCEL") {
+      logoPath = 'packages/flutter_phajay/assets/bcel.png';
+    }
+    if (bankName == "LDB") {
+      logoPath = 'packages/flutter_phajay/assets/ldb.png';
+    }
+    if (bankName == "INDOCHINA BANK") {
+      logoPath = 'packages/flutter_phajay/assets/indochina.png';
+    } else {
+      logoPath = 'packages/flutter_phajay/assets/jdb.png';
+    }
+
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 6),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: ListTile(
-        leading: const Icon(Icons.account_balance, color: Colors.blue),
+        leading: Image.asset(
+          logoPath, // your bank logo
+          height: 40,
+        ),
         title: Text(
           bankName,
           style: const TextStyle(fontWeight: FontWeight.bold),

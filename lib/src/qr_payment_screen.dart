@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_phajay/src/helper.dart';
 import 'package:http/http.dart' as http;
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'package:socket_io_client/socket_io_client.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class QRPaymentScreen extends StatefulWidget {
   final int amount;
@@ -26,6 +29,7 @@ class QRPaymentScreen extends StatefulWidget {
 
 class _QRPaymentScreenState extends State<QRPaymentScreen> {
   String? qrData; // will hold the QR string from API
+  String? linkData; // will hold the QR string from API
   bool isLoading = true;
   String? error;
 
@@ -61,10 +65,30 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
   Future<void> _generateQr() async {
     try {
       // Adjust body and headers to match your backend requirements
+      print("Generating QR code...");
+      print(widget.bankName);
+      String bankUrl;
+      if (widget.bankName == "JDB") {
+        bankUrl =
+            'https://payment-gateway.lailaolab.com/v1/api/payment/generate-jdb-qr';
+      }
+      if (widget.bankName == "BCEL") {
+        bankUrl =
+            'https://payment-gateway.lailaolab.com/v1/api/payment/generate-bcel-qr';
+      }
+      if (widget.bankName == "LDB") {
+        bankUrl =
+            'https://payment-gateway.lailaolab.com/v1/api/payment/generate-ldb-qr';
+      }
+      if (widget.bankName == "INDOCHINA BANK") {
+        bankUrl =
+            'https://payment-gateway.lailaolab.com/v1/api/payment/generate-ib-qr';
+      } else {
+        bankUrl =
+            'https://payment-gateway.lailaolab.com/v1/api/payment/generate-jdb-qr';
+      }
       final response = await http.post(
-        Uri.parse(
-          'https://payment-gateway.lailaolab.com/v1/api/payment/generate-jdb-qr',
-        ),
+        Uri.parse(bankUrl),
         headers: {
           'Content-Type': 'application/json',
           'secretKey':
@@ -80,8 +104,10 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
         final data = jsonDecode(response.body);
         // Assuming API returns JSON like { "qrString": "..." }
         print(data);
+        listenToBankSocket(data['transactionId']);
         setState(() {
           qrData = data['qrCode'];
+          linkData = data['link'];
           isLoading = false;
         });
       } else {
@@ -98,8 +124,71 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
     }
   }
 
+  listenToBankSocket(transactionId) {
+    print("Start listening to bank socket...");
+    Socket socket = io(
+      "https://payment-gateway.lailaolab.com",
+      OptionBuilder()
+          .setTransports(['websocket']) // for Flutter or Dart VM
+          .disableAutoConnect() // disable auto-connection
+          .build(),
+    );
+    socket.connect(); // Explicitly connect the socket
+    socket.onConnect((_) {
+      print('Connected to socket server');
+      socket.emit('msg', 'test');
+    });
+
+    socket.on('join::${transactionId}', (data) {
+      print('Received data for join::${transactionId}: $data');
+      if (data['message'] == 'SUCCESS') {
+        // Payment successful, navigate or show success message
+        print('Payment Successful!');
+        if (mounted) {
+          Navigator.of(context).pop(context);
+        }
+      } else if (data['message'] == 'FAILED') {
+        // Payment failed, navigate or show failure message
+        print('Payment Failed!');
+      }
+    });
+
+    socket.onDisconnect((_) => print('Disconnected from socket server'));
+    socket.onConnectError((error) => print('Connection error: $error'));
+    socket.onError((error) => print('Socket error: $error'));
+  }
+
+  void openJDBDeeplink(link) async {
+    final url = Uri.parse(link);
+
+    if (await canLaunchUrl(url)) {
+      await launchUrl(
+        url,
+        mode: LaunchMode.externalApplication, // Opens in browser or JDB app
+      );
+    } else {
+      print('❌ Could not launch $url');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    String logoPath = 'packages/flutter_phajay/assets/logo-phajay.png';
+    if (widget.bankName == "JDB") {
+      logoPath = 'packages/flutter_phajay/assets/jdb.png';
+    }
+    if (widget.bankName == "BCEL") {
+      logoPath = 'packages/flutter_phajay/assets/bcel.png';
+    }
+    if (widget.bankName == "LDB") {
+      logoPath = 'packages/flutter_phajay/assets/ldb.png';
+    }
+    if (widget.bankName == "INDOCHINA BANK") {
+      logoPath = 'packages/flutter_phajay/assets/indochina.png';
+    } else {
+      logoPath = 'packages/flutter_phajay/assets/jdb.png';
+    }
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -159,7 +248,6 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
             ),
             const SizedBox(height: 20),
 
-            // Countdown timer (static example)
             Text(
               formatTime(duration),
               style: TextStyle(
@@ -185,7 +273,7 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
                   ),
                   const SizedBox(height: 8),
                   Image.asset(
-                    'packages/flutter_phajay/assets/jdb.png', // your bank logo
+                    logoPath, // your bank logo
                     height: 40,
                   ),
                   const SizedBox(height: 16),
@@ -225,7 +313,7 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
                         ),
                       ),
                       onPressed: () {
-                        // TODO: Save QR logic
+                        openJDBDeeplink(linkData);
                       },
                     ),
                   ),
