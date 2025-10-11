@@ -2,18 +2,20 @@
 
 PhaJay Flutter SDK
 
-The PhaJay Flutter SDK lets you create smooth and secure payment experiences inside native Android and iOS apps built with Flutter.
-It provides powerful, fully customizable UI screens and components that work out-of-the-box to collect and process users’ payment details through PhaJay’s multi-bank and QR payment network.
+The PhaJay Flutter SDK lets you create smooth and secure payment experiences inside native Android and iOS apps built with Flutter. It provides powerful, fully customizable UI screens and components that work out-of-the-box to collect and process users’ payment details through PhaJay’s multi-bank and QR payment network. Additionally, it supports advanced features like real-time transaction updates and multi-platform compatibility, including web, macOS, Linux, and Windows.
 
 ---
 
-
 <img src="https://phapay-bucket.s3.ap-southeast-1.amazonaws.com/static/flutter-sdk.png" alt="Flutter-sdk-1" />
 
-
 ## ✨ Features
-- Open a payment link inside your app   
+
+- Open a payment link inside your app
 - Easy to use with a single widget
+- Real-time transaction updates
+- Multi-platform support (Android, iOS, Web, macOS, Linux, Windows)
+- Secure and reliable payment processing
+- Fully customizable UI components
 
 ---
 
@@ -24,28 +26,9 @@ Add this to your **pubspec.yaml**:
 ```yaml
 dependencies:
   flutter_phajay: ^X.X.X
-
-
-
-
-# How to Use flutter_phajay Library
-
-## Introduction
-The `flutter_phajay` library provides a seamless way to integrate payment functionalities into your Flutter application. This guide will walk you through the steps to use the library and integrate the `PaymentLinkScreen` widget into your project.
-
----
-
-## Installation
-
-1. Add the `flutter_phajay` package to your `pubspec.yaml` file:
-
-```yaml
-dependencies:
-  flutter_phajay:
-    path: ../pack/flutter_phajay
 ```
 
-2. Run the following command to fetch the package:
+Run the following command to fetch the package:
 
 ```bash
 flutter pub get
@@ -53,7 +36,7 @@ flutter pub get
 
 ---
 
-## Usage
+## 🚀 Usage
 
 ### Step 1: Import the Library
 
@@ -125,14 +108,21 @@ class PaymentExampleScreen extends StatelessWidget {
 
 ---
 
-## Notes
+## 📖 Documentation
 
-- Replace `{YOUR_SECRET_KEY}` with your actual secret key.
+- For official details, please visit the [PhaJay Official Website](https://www.phajay.co/lo).
+- For further development documentation, refer to the [PhaJay Payment Documentation](https://payment-doc.lailaolab.com/v1).
+
+---
+
+## 🛠️ Notes
+
+- Replace `{YOUR_SECRET_KEY}` with your actual secret key. To retrieve your secret key, please refer to the [PhaJay Registration Documentation](https://payment-doc.lailaolab.com/v1/registration).
 - Ensure that your app has the necessary permissions and configurations to connect to the payment gateway.
 - Refer to the official documentation for more advanced usage and customization options.
 
 ---
 
-## Support
+## 📞 Support
 
 If you encounter any issues or have questions, feel free to reach out to the maintainers of this library.
