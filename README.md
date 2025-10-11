@@ -126,3 +126,21 @@ class PaymentExampleScreen extends StatelessWidget {
 ## 📞 Support
 
 If you encounter any issues or have questions, feel free to reach out to the maintainers of this library.
+
+---
+
+### iOS (Info.plist) — Allow Opening Bcel One and JDB Yes via Deep Link
+
+If your app needs to open the Bcel One mobile app or the JDB Yes app using URL schemes (deep links), add the following to your iOS `Info.plist` so iOS will allow queries to those URL schemes:
+
+Place this inside the top-level `<dict>` of `ios/Runner/Info.plist`:
+
+```xml
+<key>LSApplicationQueriesSchemes</key>
+<array>
+  <string>jdbbank</string>
+  <string>onepay</string>
+</array>
+```
+
+This allows your app to check whether the target apps are installed and to open them via their URL schemes. Add any additional schemes the payment partners require.

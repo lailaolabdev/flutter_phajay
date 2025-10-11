@@ -36,7 +36,8 @@ class _MyHomePageState extends State<MyHomePage> {
     return PaymentLinkScreen(
       amount: 100,
       description: "Test Payment",
-      publicKey: r"{YOUR_SECRET_KEY}",
+      publicKey:
+          r"$2b$10$21qCgkB4ZX6HFUNZUrEya./tVYF0SqDEqXg3Q.gCvAuuSw5NTSelm",
     );
   }
 }

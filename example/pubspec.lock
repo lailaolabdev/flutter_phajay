@@ -73,11 +73,10 @@ packages:
   flutter_phajay:
     dependency: "direct main"
     description:
-      name: flutter_phajay
-      sha256: "0502df2fb9e4a0a0c9898f2306292a709c8ff29bba056edf43db955521dc487c"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.0.10"
+      path: ".."
+      relative: true
+    source: path
+    version: "0.0.13"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -104,6 +103,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.1.2"
+  intl:
+    dependency: transitive
+    description:
+      name: intl
+      sha256: "3df61194eb431efc39c4ceba583b95633a403f46c9fd341e550ce0bfa50e9aa5"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.20.2"
   leak_tracker:
     dependency: transitive
     description:

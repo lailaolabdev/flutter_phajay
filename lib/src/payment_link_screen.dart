@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_phajay/src/helper.dart';
 import 'package:flutter_phajay/src/qr_payment_screen.dart';
+import 'package:intl/intl.dart';
 
 class PaymentLinkScreen extends StatelessWidget {
   final int amount;
@@ -75,9 +76,14 @@ class PaymentLinkScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    const Text(
-                      'September 27, 2025   23:26:25',
-                      style: TextStyle(color: Colors.white70, fontSize: 14),
+                    Text(
+                      DateFormat(
+                        'MMMM dd, yyyy   HH:mm:ss',
+                      ).format(DateTime.now()),
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 14,
+                      ),
                     ),
                   ],
                 ),

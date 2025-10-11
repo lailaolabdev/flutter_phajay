@@ -84,18 +84,25 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
         bankUrl =
             'https://payment-gateway.lailaolab.com/v1/api/payment/generate-jdb-qr';
       }
+      setState(() {
+        isLoading = true;
+      });
+
       final response = await http.post(
         Uri.parse(bankUrl),
         headers: {
           'Content-Type': 'application/json',
-          'secretKey':
-              r"$2b$10$21qCgkB4ZX6HFUNZUrEya./tVYF0SqDEqXg3Q.gCvAuuSw5NTSelm",
+          'secretKey': widget.publicKey, // Use the provided public key
         },
         body: jsonEncode({
           'amount': widget.amount,
-          "description": widget.description,
+          'description': widget.description,
         }),
       );
+
+      setState(() {
+        isLoading = false;
+      });
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -105,12 +112,10 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
         setState(() {
           qrData = data['qrCode'];
           linkData = data['link'];
-          isLoading = false;
         });
       } else {
         setState(() {
           error = 'Error ${response.statusCode}: ${response.reasonPhrase}';
-          isLoading = false;
         });
       }
     } catch (e) {
@@ -142,7 +147,47 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
         // Payment successful, navigate or show success message
         print('Payment Successful!');
         if (mounted) {
-          Navigator.of(context).pop(context);
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text('Payment Successful'),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.check_circle,
+                      color: Colors.green,
+                      size: 48,
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Thank you for your payment. You will be redirected shortly.',
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(
+                        context,
+                      ).pop(); // Close the dialog immediately
+                      Navigator.of(context).pop(); // Navigate back
+                    },
+                    child: const Text('Close'),
+                  ),
+                ],
+              );
+            },
+          );
+
+          Future.delayed(const Duration(seconds: 5), () {
+            if (mounted) {
+              Navigator.of(context).pop(); // Close the dialog
+              Navigator.of(context).pop(); // Navigate back
+            }
+          });
         }
       } else if (data['message'] == 'FAILED') {
         // Payment failed, navigate or show failure message
@@ -206,15 +251,6 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
             ),
           ],
         ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child: Image.asset(
-              'packages/flutter_phajay/assets/en.png', // <- replace with your flag icon
-              height: 24,
-            ),
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -277,21 +313,24 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
                   ),
                   const SizedBox(height: 12),
                   // Replace with actual QR image (use qr_flutter for generated QR)
-                  Container(
-                    width: 200,
-                    height: 200,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.black12),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Center(
-                      child: QrImageView(
-                        data: qrData ?? 'Loading...',
-                        version: QrVersions.auto,
-                        size: 200.0,
+                  if (isLoading)
+                    Center(child: CircularProgressIndicator())
+                  else
+                    Container(
+                      width: 200,
+                      height: 200,
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.black12),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Center(
+                        child: QrImageView(
+                          data: qrData ?? 'Loading...',
+                          version: QrVersions.auto,
+                          size: 200.0,
+                        ),
                       ),
                     ),
-                  ),
                   const SizedBox(height: 16),
                   SizedBox(
                     width: double.infinity,
@@ -306,9 +345,9 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      onPressed: () {
-                        openJDBDeeplink(linkData);
-                      },
+                      onPressed: isLoading
+                          ? null
+                          : () => openJDBDeeplink(linkData),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -325,9 +364,9 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      onPressed: () {
-                        // TODO: Save QR logic
-                      },
+                      onPressed: isLoading
+                          ? null
+                          : () {}, // TODO: Save QR logic
                     ),
                   ),
                 ],
