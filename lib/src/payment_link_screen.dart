@@ -114,26 +114,105 @@ class PaymentLinkScreen extends StatelessWidget {
               BankTile(
                 bankName: "JDB",
                 amount: amount,
+                subtitle: 'Pay via JDB Mobile Banking',
                 description: description,
                 publicKey: publicKey,
               ),
               BankTile(
                 bankName: "LDB",
                 amount: amount,
+                subtitle: 'Pay via LDB Mobile Banking',
                 description: description,
                 publicKey: publicKey,
               ),
               BankTile(
                 bankName: "BCEL",
                 amount: amount,
+                subtitle: 'Pay via BCEL One Mobile Banking',
                 description: description,
                 publicKey: publicKey,
               ),
               BankTile(
                 bankName: 'INDOCHINA BANK',
+                subtitle: 'Pay via Indochina Mobile Banking',
                 amount: amount,
                 description: description,
                 publicKey: publicKey,
+              ),
+
+              const SizedBox(height: 24),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Payment Methods',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 16),
+                  BankTile(
+                    bankName: "MASTERCARD",
+                    amount: amount,
+                    subtitle: "Available Soon",
+                    description: "Available Soon",
+                    publicKey: publicKey,
+                  ),
+                  BankTile(
+                    bankName: "LAO QR",
+                    amount: amount,
+                    subtitle: "Available Soon",
+                    description: "Available Soon",
+                    publicKey: publicKey,
+                  ),
+                  BankTile(
+                    bankName: "PROMPTPAY",
+                    amount: amount,
+                    subtitle: "Available Soon",
+                    description: "Available Soon",
+                    publicKey: publicKey,
+                  ),
+                  BankTile(
+                    bankName: "THAI QR",
+                    amount: amount,
+                    subtitle: "Available Soon",
+                    description: "Available Soon",
+                    publicKey: publicKey,
+                  ),
+                  BankTile(
+                    bankName: "UNIONPAY",
+                    amount: amount,
+                    subtitle: "Available Soon",
+                    description: "Available Soon",
+                    publicKey: publicKey,
+                  ),
+                  BankTile(
+                    bankName: "KHQR",
+                    amount: amount,
+                    subtitle: "Available Soon",
+                    description: "Available Soon",
+                    publicKey: publicKey,
+                  ),
+                  BankTile(
+                    bankName: "NAPAS",
+                    amount: amount,
+                    subtitle: "Available Soon",
+                    description: "Available Soon",
+                    publicKey: publicKey,
+                  ),
+                  BankTile(
+                    bankName: "WECHAT",
+                    amount: amount,
+                    subtitle: "Available Soon",
+                    description: "Available Soon",
+                    publicKey: publicKey,
+                  ),
+                  BankTile(
+                    bankName: "ALIPAY",
+                    amount: amount,
+                    subtitle: "Available Soon",
+                    description: "Available Soon",
+                    publicKey: publicKey,
+                  ),
+                ],
               ),
             ],
           ),
@@ -147,6 +226,7 @@ class BankTile extends StatelessWidget {
   final int amount;
   final String description;
   final String publicKey;
+  final String subtitle;
   final String bankName;
 
   const BankTile({
@@ -155,6 +235,7 @@ class BankTile extends StatelessWidget {
     required this.amount,
     required this.description,
     required this.publicKey,
+    required this.subtitle,
   });
 
   @override
@@ -170,7 +251,7 @@ class BankTile extends StatelessWidget {
     } else if (bankName == "INDOCHINA BANK") {
       logoPath = 'packages/flutter_phajay/assets/indochina.png';
     } else {
-      logoPath = 'packages/flutter_phajay/assets/bcel.png';
+      logoPath = 'packages/flutter_phajay/assets/logo-phajay.png';
     }
 
     return Card(
