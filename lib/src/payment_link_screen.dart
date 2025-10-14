@@ -30,7 +30,7 @@ class PaymentLinkScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Image.asset(
-                    'packages/flutter_phajay/assets/logo-phajay.png',
+                    'packages/flutter_phajay/assets/logo_phajay.png',
                     height: 40,
                   ),
                   const SizedBox(width: 8),
@@ -150,56 +150,70 @@ class PaymentLinkScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   BankTile(
+                    bankName: "CREDIT CARD",
+                    amount: amount,
+                    subtitle: "Available Soon",
+                    description: "Available Soon",
+                    publicKey: publicKey,
+                  ),
+                  BankTile(
+                    bankName: "VISA",
+                    amount: amount,
+                    subtitle: "Available Soon",
+                    description: "Available Soon",
+                    publicKey: publicKey,
+                  ),
+                  BankTile(
                     bankName: "MASTERCARD",
                     amount: amount,
                     subtitle: "Available Soon",
                     description: "Available Soon",
                     publicKey: publicKey,
                   ),
+                  // BankTile(
+                  //   bankName: "LAO QR",
+                  //   amount: amount,
+                  //   subtitle: "Available Soon",
+                  //   description: "Available Soon",
+                  //   publicKey: publicKey,
+                  // ),
+                  // BankTile(
+                  //   bankName: "PROMPTPAY",
+                  //   amount: amount,
+                  //   subtitle: "Available Soon",
+                  //   description: "Available Soon",
+                  //   publicKey: publicKey,
+                  // ),
+                  // BankTile(
+                  //   bankName: "THAI QR",
+                  //   amount: amount,
+                  //   subtitle: "Available Soon",
+                  //   description: "Available Soon",
+                  //   publicKey: publicKey,
+                  // ),
+                  // BankTile(
+                  //   bankName: "UNIONPAY",
+                  //   amount: amount,
+                  //   subtitle: "Available Soon",
+                  //   description: "Available Soon",
+                  //   publicKey: publicKey,
+                  // ),
+                  // BankTile(
+                  //   bankName: "KHQR",
+                  //   amount: amount,
+                  //   subtitle: "Available Soon",
+                  //   description: "Available Soon",
+                  //   publicKey: publicKey,
+                  // ),
+                  // BankTile(
+                  //   bankName: "NAPAS",
+                  //   amount: amount,
+                  //   subtitle: "Available Soon",
+                  //   description: "Available Soon",
+                  //   publicKey: publicKey,
+                  // ),
                   BankTile(
-                    bankName: "LAO QR",
-                    amount: amount,
-                    subtitle: "Available Soon",
-                    description: "Available Soon",
-                    publicKey: publicKey,
-                  ),
-                  BankTile(
-                    bankName: "PROMPTPAY",
-                    amount: amount,
-                    subtitle: "Available Soon",
-                    description: "Available Soon",
-                    publicKey: publicKey,
-                  ),
-                  BankTile(
-                    bankName: "THAI QR",
-                    amount: amount,
-                    subtitle: "Available Soon",
-                    description: "Available Soon",
-                    publicKey: publicKey,
-                  ),
-                  BankTile(
-                    bankName: "UNIONPAY",
-                    amount: amount,
-                    subtitle: "Available Soon",
-                    description: "Available Soon",
-                    publicKey: publicKey,
-                  ),
-                  BankTile(
-                    bankName: "KHQR",
-                    amount: amount,
-                    subtitle: "Available Soon",
-                    description: "Available Soon",
-                    publicKey: publicKey,
-                  ),
-                  BankTile(
-                    bankName: "NAPAS",
-                    amount: amount,
-                    subtitle: "Available Soon",
-                    description: "Available Soon",
-                    publicKey: publicKey,
-                  ),
-                  BankTile(
-                    bankName: "WECHAT",
+                    bankName: "WECHATPAY",
                     amount: amount,
                     subtitle: "Available Soon",
                     description: "Available Soon",
@@ -240,7 +254,7 @@ class BankTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String logoPath = 'packages/flutter_phajay/assets/logo-phajay.png';
+    String logoPath = 'packages/flutter_phajay/assets/logo_phajay.png';
     if (bankName == "JDB") {
       logoPath = 'packages/flutter_phajay/assets/jdb.png';
     } else if (bankName == "BCEL") {
@@ -249,8 +263,18 @@ class BankTile extends StatelessWidget {
       logoPath = 'packages/flutter_phajay/assets/ldb.png';
     } else if (bankName == "INDOCHINA BANK") {
       logoPath = 'packages/flutter_phajay/assets/indochina.png';
+    } else if (bankName == "CREDIT CARD") {
+      logoPath = 'packages/flutter_phajay/assets/credit_card.png';
+    } else if (bankName == "MASTERCARD") {
+      logoPath = 'packages/flutter_phajay/assets/master_card.png';
+    } else if (bankName == "VISA") {
+      logoPath = 'packages/flutter_phajay/assets/visa.png';
+    } else if (bankName == "ALIPAY") {
+      logoPath = 'packages/flutter_phajay/assets/alipay.png';
+    } else if (bankName == "WECHATPAY") {
+      logoPath = 'packages/flutter_phajay/assets/wechatpay.png';
     } else {
-      logoPath = 'packages/flutter_phajay/assets/logo-phajay.png';
+      logoPath = 'packages/flutter_phajay/assets/logo_phajay.png';
     }
 
     return Card(
@@ -260,6 +284,7 @@ class BankTile extends StatelessWidget {
         leading: Image.asset(
           logoPath, // your bank logo
           height: 40,
+          width: 40,
         ),
         title: Text(
           bankName,

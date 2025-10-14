@@ -1,7 +1,7 @@
 name: flutter_phajay
 description: |
   Flutter Phajay is a comprehensive library designed to simplify payment integration in Flutter applications. It provides a seamless and secure way to display payment link screens, enabling transactions through various payment methods and banks.
-version: 0.0.14
+version: 0.0.15
 homepage: https://www.phajay.co
 repository: https://github.com/lailaolabdev/flutter_phajay
 issue_tracker: https://github.com/lailaolabdev/flutter_phajay/issues
@@ -35,6 +35,11 @@ flutter:
     - assets/jdb.png
     - assets/en.png
     - assets/lao_qr.png
-    - assets/logo-phajay.png
+    - assets/logo_phajay.png
+    - assets/alipay.png
+    - assets/wechatpay.png
+    - assets/credit_card.png
+    - assets/master_card.png
+    - assets/visa.png
     - assets/loading_animation.json
-    - assets/payment-sucess.json
+    - assets/payment_success.json

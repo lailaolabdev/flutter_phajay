@@ -157,7 +157,7 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Lottie.asset(
-                      'packages/flutter_phajay/assets/payment-sucess.json',
+                      'packages/flutter_phajay/assets/payment_success.json',
                       width: 200,
                       height: 200,
                     ),
@@ -216,7 +216,7 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
 
   @override
   Widget build(BuildContext context) {
-    String logoPath = 'packages/flutter_phajay/assets/logo-phajay.png';
+    String logoPath = 'packages/flutter_phajay/assets/logo_phajay.png';
     if (widget.bankName == "JDB") {
       logoPath = 'packages/flutter_phajay/assets/jdb.png';
     } else if (widget.bankName == "BCEL") {
@@ -225,8 +225,12 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
       logoPath = 'packages/flutter_phajay/assets/ldb.png';
     } else if (widget.bankName == "INDOCHINA BANK") {
       logoPath = 'packages/flutter_phajay/assets/indochina.png';
+    } else if (widget.bankName == "ALIPAY") {
+      logoPath = 'packages/flutter_phajay/assets/alipay.png';
+    } else if (widget.bankName == "WECHATPAY") {
+      logoPath = 'packages/flutter_phajay/assets/wechatpay.png';
     } else {
-      logoPath = 'packages/flutter_phajay/assets/jdb.png';
+      logoPath = 'packages/flutter_phajay/assets/logo_phajay.png';
     }
 
     return Scaffold(
