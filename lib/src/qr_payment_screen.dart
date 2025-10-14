@@ -8,6 +8,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:socket_io_client/socket_io_client.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:lottie/lottie.dart';
 
 class QRPaymentScreen extends StatefulWidget {
   final int amount;
@@ -151,14 +152,14 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
             context: context,
             builder: (BuildContext context) {
               return AlertDialog(
-                title: const Text('Payment Successful'),
+                // title: const Text('Payment Successful'),
                 content: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(
-                      Icons.check_circle,
-                      color: Colors.green,
-                      size: 48,
+                    Lottie.asset(
+                      'packages/flutter_phajay/assets/payment-sucess.json',
+                      width: 200,
+                      height: 200,
                     ),
                     const SizedBox(height: 16),
                     const Text(
@@ -314,7 +315,13 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
                   const SizedBox(height: 12),
                   // Replace with actual QR image (use qr_flutter for generated QR)
                   if (isLoading)
-                    Center(child: CircularProgressIndicator())
+                    Center(
+                      child: Lottie.asset(
+                        'packages/flutter_phajay/assets/loading_animation.json',
+                        width: 100,
+                        height: 100,
+                      ),
+                    )
                   else
                     Container(
                       width: 200,
@@ -328,6 +335,8 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
                           data: qrData ?? 'Loading...',
                           version: QrVersions.auto,
                           size: 200.0,
+                          foregroundColor:
+                              Colors.grey.shade800, // Set to a darker grey
                         ),
                       ),
                     ),
@@ -335,11 +344,11 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
-                      icon: const Icon(Icons.download),
+                      icon: const Icon(Icons.send_to_mobile_rounded),
                       label: const Text('Open Bank App'),
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 14),
-                        backgroundColor: Colors.blue,
+                        backgroundColor: Color(0xFF1E3C72),
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
@@ -358,7 +367,7 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
                       label: const Text('Save QR'),
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 14),
-                        backgroundColor: Colors.blue,
+                        backgroundColor: Color(0xFF1E3C72),
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),

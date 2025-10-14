@@ -15,6 +15,7 @@ dependencies:
     sdk: flutter
   http: ^1.5.0
   intl: ^0.20.2
+  lottie: ^3.3.2
   qr_flutter: ^4.1.0
   socket_io_client: ^3.1.2
   url_launcher: ^6.3.2
@@ -35,3 +36,5 @@ flutter:
     - assets/en.png
     - assets/lao_qr.png
     - assets/logo-phajay.png
+    - assets/loading_animation.json
+    - assets/payment-sucess.json

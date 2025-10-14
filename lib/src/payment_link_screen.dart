@@ -240,7 +240,6 @@ class BankTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print(bankName);
     String logoPath = 'packages/flutter_phajay/assets/logo-phajay.png';
     if (bankName == "JDB") {
       logoPath = 'packages/flutter_phajay/assets/jdb.png';
