@@ -27,14 +27,158 @@ Add this to your **pubspec.yaml**:
 
 ```yaml
 dependencies:
-  flutter_phajay: ^X.X.X
-  google_fonts: ^6.1.0  # Required for Noto Sans Lao font support
+  flutter_phajay: ^0.0.16
 ```
+
+**Note**: `google_fonts` is automatically included as a dependency of `flutter_phajay` for Noto Sans Lao font support, so you don't need to add it manually.
 
 Run the following command to fetch the package:
 
 ```bash
 flutter pub get
+```
+
+---
+
+## 🔧 Platform Configuration
+
+### Android Configuration
+
+#### 1. Internet Permission (Required)
+
+Add the following permission to your `android/app/src/main/AndroidManifest.xml` file (usually already present in most Flutter projects):
+
+```xml
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.INTERNET" />
+    
+    <application>
+        <!-- Your app configuration -->
+    </application>
+</manifest>
+```
+
+#### 2. Deep Link Configuration (Required for Payment Callbacks)
+
+Add the following intent filter inside the `<activity>` tag in your `android/app/src/main/AndroidManifest.xml`:
+
+```xml
+<activity
+    android:name=".MainActivity"
+    android:exported="true"
+    android:launchMode="singleTop"
+    android:theme="@style/LaunchTheme">
+    
+    <!-- Existing intent filter for MAIN/LAUNCHER -->
+    <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+    </intent-filter>
+    
+    <!-- Add this intent filter for PhaJay payment callbacks -->
+    <intent-filter android:autoVerify="true">
+        <action android:name="android.intent.action.VIEW" />
+        <category android:name="android.intent.category.DEFAULT" />
+        <category android:name="android.intent.category.BROWSABLE" />
+        <data android:scheme="phajay" 
+              android:host="payment" />
+    </intent-filter>
+</activity>
+```
+
+#### 3. Bank App Integration (Optional)
+
+If your app needs to open specific banking apps, add queries permissions in your `android/app/src/main/AndroidManifest.xml`:
+
+```xml
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Add this section before <application> -->
+    <queries>
+        <!-- For opening JDB banking app -->
+        <package android:name="com.jdb.mobile.jdb" />
+        <!-- For opening BCEL One app -->
+        <package android:name="com.bcel.one" />
+        <!-- Add other banking apps as needed -->
+    </queries>
+    
+    <application>
+        <!-- Your app configuration -->
+    </application>
+</manifest>
+```
+
+### iOS Configuration
+
+#### 1. Deep Link Configuration (Required for Payment Callbacks)
+
+Add the following to your `ios/Runner/Info.plist` file:
+
+```xml
+<dict>
+    <!-- Existing configurations -->
+    
+    <!-- Add URL scheme for PhaJay payment callbacks -->
+    <key>CFBundleURLTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleURLName</key>
+            <string>phajay.payment.callback</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>phajay</string>
+            </array>
+        </dict>
+    </array>
+    
+    <!-- Allow opening banking apps (Required for JDB and BCEL integration) -->
+    <key>LSApplicationQueriesSchemes</key>
+    <array>
+        <string>jdbbank</string>
+        <string>onepay</string>
+    </array>
+</dict>
+```
+
+#### 2. Network Security (iOS 9.0+)
+
+If you're connecting to HTTP endpoints (not recommended for production), add the following to your `ios/Runner/Info.plist`:
+
+```xml
+<dict>
+    <!-- Only add this for development/staging environments -->
+    <key>NSAppTransportSecurity</key>
+    <dict>
+        <key>NSAllowsArbitraryLoads</key>
+        <true/>
+    </dict>
+</dict>
+```
+
+**Note**: For production apps, always use HTTPS endpoints and remove the NSAppTransportSecurity configuration.
+
+```
+
+---
+
+## 🔒 Security Considerations
+
+### Production Deployment
+1. **HTTPS Only**: Always use HTTPS endpoints in production
+2. **API Key Security**: Store your PhaJay secret key securely
+3. **Deep Link Validation**: Validate all incoming deep link parameters
+4. **Certificate Pinning**: Consider implementing certificate pinning for additional security
+
+### Secret Key Management
+```dart
+// ❌ Don't hardcode in source code
+PaymentLinkScreen(
+  publicKey: "your-secret-key-here",
+);
+
+// ✅ Use environment variables or secure storage
+PaymentLinkScreen(
+  publicKey: const String.fromEnvironment('PHAJAY_SECRET_KEY'),
+);
 ```
 
 ---
@@ -281,6 +425,84 @@ class PaymentExampleScreen extends StatelessWidget {
 
 ---
 
+---
+
+## 🔧 Troubleshooting
+
+### Common Issues
+
+#### 1. Deep Link Not Working
+- **Android**: Ensure the intent filter is correctly added to your MainActivity
+- **iOS**: Verify CFBundleURLSchemes is properly configured in Info.plist
+- Test deep links using: `adb shell am start -W -a android.intent.action.VIEW -d "phajay://payment?status=success" com.yourapp.package`
+
+#### 2. Banking Apps Not Opening
+- **Android**: Add required package queries in AndroidManifest.xml
+- **iOS**: Include LSApplicationQueriesSchemes in Info.plist
+- Ensure target banking apps are installed on the device
+
+#### 3. Payment Callbacks Not Received
+- Verify your app can handle the `phajay://` URL scheme
+- Check that app_links plugin is properly configured
+- Ensure your app is in foreground when payment completes
+
+#### 4. Font Rendering Issues
+- Apply PhajayTheme.lightTheme to your MaterialApp
+- Verify google_fonts dependency is added
+- Check internet connectivity for font downloads
+
+### Testing Deep Links
+
+#### Android Testing
+```bash
+# Test payment success callback
+adb shell am start -W -a android.intent.action.VIEW -d "phajay://payment?status=success&amount=100" com.yourapp.package
+
+# Test payment failure callback  
+adb shell am start -W -a android.intent.action.VIEW -d "phajay://payment?status=failed&error=timeout" com.yourapp.package
+```
+
+#### iOS Testing
+Use Simulator's Device > Device > Safari, then enter: `phajay://payment?status=success&amount=100`
+
+---
+
+## 📋 Requirements
+
+### Minimum Requirements
+- **Flutter**: 1.17.0 or higher
+- **Dart SDK**: 3.9.0 or higher  
+- **Android**: API level 21 (Android 5.0) or higher
+- **iOS**: iOS 12.0 or higher
+
+### Dependencies
+The following dependencies are automatically included with `flutter_phajay`:
+- `http: ^1.5.0` - For HTTP requests to payment APIs
+- `qr_flutter: ^4.1.0` - For QR code generation
+- `socket_io_client: ^3.1.2` - For real-time payment status updates
+- `url_launcher: ^6.3.0` - For launching banking apps
+- `app_links: ^6.3.2` - For deep link handling
+- `flutter_inappwebview: ^6.0.0` - For credit card payment webviews
+- `google_fonts: ^6.1.0` - For Noto Sans Lao font rendering
+- `lottie: ^3.3.2` - For loading animations
+- `intl: ^0.20.2` - For number formatting
+
+**You don't need to add these manually** - they will be installed automatically when you add `flutter_phajay` to your pubspec.yaml.
+
+### Permissions Summary
+
+#### Android Required:
+- `android.permission.INTERNET` - For payment API calls
+- Deep link intent filter - For payment callbacks
+- Package queries (optional) - For opening banking apps
+
+#### iOS Required:  
+- CFBundleURLSchemes - For payment callbacks
+- LSApplicationQueriesSchemes - For opening banking apps
+- Network access - For payment API calls
+
+---
+
 ## 🛠️ Notes
 
 - Replace `{YOUR_SECRET_KEY}` with your actual secret key. To retrieve your secret key, please refer to the [PhaJay Registration Documentation](https://payment-doc.lailaolab.com/v1/registration).
@@ -294,17 +516,21 @@ class PaymentExampleScreen extends StatelessWidget {
 
 ### Font Usage
 ```dart
-// ✅ Recommended: Use PhajayTheme for consistent styling
+// ✅ Recommended: Use PhajayTheme for consistent Lao font styling
 Text('ຍິນດີຕ້ອນຮັບ', style: PhajayTheme.heading1);
 
-// ✅ Good: Apply theme globally
+// ✅ Good: Apply theme globally (Noto Sans Lao automatically applied)
 MaterialApp(
-  theme: PhajayTheme.lightTheme,
+  theme: PhajayTheme.lightTheme,  // google_fonts automatically included
   home: MyHomePage(),
 );
 
 // ❌ Avoid: Manual font family specification
 Text('ຍິນດີຕ້ອນຮັບ', style: TextStyle(fontFamily: 'NotoSansLao'));
+
+// ❌ Avoid: Adding google_fonts dependency manually
+// dependencies:
+//   google_fonts: ^6.1.0  // Already included with flutter_phajay
 ```
 
 ### Configuration
@@ -330,16 +556,38 @@ If you encounter any issues or have questions, feel free to reach out to the mai
 
 ### iOS (Info.plist) — Allow Opening Bcel One and JDB Yes via Deep Link
 
-If your app needs to open the Bcel One mobile app or the JDB Yes app using URL schemes (deep links), add the following to your iOS `Info.plist` so iOS will allow queries to those URL schemes:
-
-Place this inside the top-level `<dict>` of `ios/Runner/Info.plist`:
+Add the following configuration to your iOS `ios/Runner/Info.plist` file inside the top-level `<dict>`:
 
 ```xml
+<!-- Required: URL scheme for PhaJay payment callbacks -->
+<key>CFBundleURLTypes</key>
+<array>
+    <dict>
+        <key>CFBundleURLName</key>
+        <string>phajay.payment.callback</string>
+        <key>CFBundleURLSchemes</key>
+        <array>
+            <string>phajay</string>
+        </array>
+    </dict>
+</array>
+
+<!-- Required: Allow opening banking apps via URL schemes -->
 <key>LSApplicationQueriesSchemes</key>
 <array>
-  <string>jdbbank</string>
-  <string>onepay</string>
+    <string>jdbbank</string>
+    <string>onepay</string>
+    <!-- Add additional banking app schemes as needed -->
 </array>
 ```
 
-This allows your app to check whether the target apps are installed and to open them via their URL schemes. Add any additional schemes the payment partners require.
+This configuration enables your app to:
+1. Receive payment callbacks via the `phajay://` URL scheme
+2. Check if banking apps (BCEL One, JDB Yes) are installed
+3. Open banking apps for payment processing
+
+**Additional Banking Apps:**
+If you need to support additional banking apps, add their URL schemes to the `LSApplicationQueriesSchemes` array. Common schemes include:
+- `ldbbank://` - Lao Development Bank
+- `indochinabank://` - Indochina Bank
+- Add others as provided by the respective banks
