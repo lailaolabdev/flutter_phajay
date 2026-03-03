@@ -1,3 +1,8 @@
+## 0.0.16
+
+* Minor version update for continuous improvements.
+* Maintained stability and performance optimizations.
+
 ## 0.0.15
 
 * Enhanced null safety in QR payment screen to prevent runtime crashes.
