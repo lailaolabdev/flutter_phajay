@@ -1,3 +1,12 @@
+## 0.0.17
+
+* Fixed README.md markdown formatting issues for proper GitHub rendering.
+* Enhanced documentation with comprehensive platform configuration guides.
+* Added detailed troubleshooting section with common issues and solutions.
+* Improved dependency management documentation - clarified that google_fonts is automatically included.
+* Added security considerations and best practices for production deployment.
+* Enhanced iOS and Android configuration sections with complete setup instructions.
+
 ## 0.0.16
 
 * Minor version update for continuous improvements.

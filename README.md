@@ -27,7 +27,7 @@ Add this to your **pubspec.yaml**:
 
 ```yaml
 dependencies:
-  flutter_phajay: ^0.0.16
+  flutter_phajay: ^0.0.17
 ```
 
 **Note**: `google_fonts` is automatically included as a dependency of `flutter_phajay` for Noto Sans Lao font support, so you don't need to add it manually.
