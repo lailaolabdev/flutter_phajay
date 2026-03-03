@@ -156,8 +156,6 @@ If you're connecting to HTTP endpoints (not recommended for production), add the
 
 **Note**: For production apps, always use HTTPS endpoints and remove the NSAppTransportSecurity configuration.
 
-```
-
 ---
 
 ## 🔒 Security Considerations
@@ -425,8 +423,6 @@ class PaymentExampleScreen extends StatelessWidget {
 
 ---
 
----
-
 ## 🔧 Troubleshooting
 
 ### Common Issues
@@ -553,6 +549,8 @@ void main() {
 If you encounter any issues or have questions, feel free to reach out to the maintainers of this library.
 
 ---
+
+## 📱 Additional iOS Configuration
 
 ### iOS (Info.plist) — Allow Opening Bcel One and JDB Yes via Deep Link
 
