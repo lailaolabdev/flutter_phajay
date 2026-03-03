@@ -12,7 +12,6 @@ import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:socket_io_client/socket_io_client.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:lottie/lottie.dart';
-import 'package:intl/intl.dart';
 
 class QRPaymentScreen extends StatefulWidget {
   final int amount;

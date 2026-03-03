@@ -1,3 +1,14 @@
+## 0.0.15
+
+* Enhanced null safety in QR payment screen to prevent runtime crashes.
+* Improved service charge handling with proper type casting for API responses.
+* Fixed "isNegative" null error by making formatThousand function null-safe.
+* Added comprehensive Noto Sans Lao font integration for proper Lao language rendering.
+* Created PhajayTheme system for consistent typography across components.
+* Added loading animations for better user experience in QR generation.
+* Updated documentation with font integration and theming best practices.
+* Improved socket connection reliability and payment status callbacks.
+
 ## 0.0.10
 
 * Updated license to reflect "PHAJAY".
