@@ -401,6 +401,7 @@ class PaymentExampleScreen extends StatelessWidget {
     );
   }
 }
+```
 
 ---
 
