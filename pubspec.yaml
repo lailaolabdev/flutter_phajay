@@ -7,7 +7,7 @@ repository: https://github.com/lailaolabdev/flutter_phajay
 issue_tracker: https://github.com/lailaolabdev/flutter_phajay/issues
 
 environment:
-  sdk: ^3.9.2
+  sdk: ^3.9.0
   flutter: ">=1.17.0"
 
 dependencies:
@@ -18,7 +18,10 @@ dependencies:
   lottie: ^3.3.2
   qr_flutter: ^4.1.0
   socket_io_client: ^3.1.2
-  url_launcher: ^6.3.2
+  url_launcher: ^6.3.0
+  app_links: ^6.3.2
+  flutter_inappwebview: ^6.0.0
+  google_fonts: ^6.1.0
 
 dev_dependencies:
   flutter_test:
@@ -30,16 +33,30 @@ flutter:
     - assets/
     - assets/en.png
     - assets/bcel.png
+    - assets/bcel-logo.png
     - assets/ldb.png
+    - assets/ldb-logo.png
     - assets/indochina.png
+    - assets/ib-logo.png
     - assets/jdb.png
-    - assets/en.png
+    - assets/jdb-logo.png
+    - assets/stb-logo.png
     - assets/lao_qr.png
+    - assets/lao-qr-logo.png
     - assets/logo_phajay.png
     - assets/alipay.png
+    - assets/alipay-logo.png
     - assets/wechatpay.png
+    - assets/wechat-logo.png
     - assets/credit_card.png
     - assets/master_card.png
+    - assets/master-logo.png
     - assets/visa.png
+    - assets/visa-logo.png
+    - assets/promt-pay-logo.png
+    - assets/khor-qr-logo.jpeg
+    - assets/Thai-qr.webp
+    - assets/union-pay.png
+    - assets/Napas.jfif
     - assets/loading_animation.json
     - assets/payment_success.json

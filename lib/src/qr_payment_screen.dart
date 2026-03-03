@@ -3,18 +3,25 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_phajay/src/helper.dart';
+import 'package:flutter_phajay/src/payment_state.dart';
+import 'package:flutter_phajay/src/config.dart';
+import 'package:flutter_phajay/src/theme.dart';
 import 'package:http/http.dart' as http;
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:socket_io_client/socket_io_client.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:lottie/lottie.dart';
+import 'package:intl/intl.dart';
 
 class QRPaymentScreen extends StatefulWidget {
   final int amount;
   final String description;
   final String publicKey;
   final String bankName;
+  final String? linkCode;
+  final Function() onPaymentSuccess;
+  final Function(String error) onPaymentError;
 
   const QRPaymentScreen({
     super.key,
@@ -22,6 +29,9 @@ class QRPaymentScreen extends StatefulWidget {
     required this.description,
     required this.publicKey,
     required this.bankName,
+    this.linkCode,
+    required this.onPaymentSuccess,
+    required this.onPaymentError,
   });
 
   @override
@@ -34,12 +44,17 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
   bool isLoading = true;
   String? error;
 
+  // Service charge data
+  Map<String, dynamic>? serviceChargeData;
+  int displayAmount = 0; // จำนวนเงินที่จะแสดง (originalAmount หรือ totalAmount)
+
   late Duration duration;
   Timer? timer;
 
   @override
   void initState() {
     super.initState();
+    displayAmount = widget.amount; // เริ่มต้นด้วย amount เดิม
     _generateQr();
     duration = Duration(minutes: 30);
     startTimer();
@@ -69,21 +84,28 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
       print("Generating QR code...");
       print(widget.bankName);
       String bankUrl;
-      if (widget.bankName == "JDB") {
-        bankUrl =
-            'https://payment-gateway.lailaolab.com/v1/api/payment/generate-jdb-qr';
+
+      // Map payment methods to API endpoints according to web logic
+      if (widget.bankName == "JDB" ||
+          widget.bankName == "PromtPay" ||
+          widget.bankName == "Lao QR" ||
+          widget.bankName == "Thai QR" ||
+          widget.bankName == "UnionPay" ||
+          widget.bankName == "KHQR" ||
+          widget.bankName == "NAPAS") {
+        bankUrl = PhajayConfig.generateJdbQr;
       } else if (widget.bankName == "BCEL") {
-        bankUrl =
-            'https://payment-gateway.lailaolab.com/v1/api/payment/generate-bcel-qr';
+        bankUrl = PhajayConfig.generateBcelQr;
+      } else if (widget.bankName == "INDOCHINA BANK" ||
+          widget.bankName == "Indochina Bank") {
+        bankUrl = PhajayConfig.generateIbQr;
       } else if (widget.bankName == "LDB") {
-        bankUrl =
-            'https://payment-gateway.lailaolab.com/v1/api/payment/generate-ldb-qr';
-      } else if (widget.bankName == "INDOCHINA BANK") {
-        bankUrl =
-            'https://payment-gateway.lailaolab.com/v1/api/payment/generate-ib-qr';
+        bankUrl = PhajayConfig.generateLdbQr;
+      } else if (widget.bankName == "STB") {
+        bankUrl = PhajayConfig.generateStbQr;
       } else {
-        bankUrl =
-            'https://payment-gateway.lailaolab.com/v1/api/payment/generate-jdb-qr';
+        // Default fallback to JDB endpoint
+        bankUrl = PhajayConfig.generateJdbQr;
       }
       setState(() {
         isLoading = true;
@@ -91,14 +113,8 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
 
       final response = await http.post(
         Uri.parse(bankUrl),
-        headers: {
-          'Content-Type': 'application/json',
-          'secretKey': widget.publicKey, // Use the provided public key
-        },
-        body: jsonEncode({
-          'amount': widget.amount,
-          'description': widget.description,
-        }),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'linkCode': widget.linkCode}),
       );
 
       setState(() {
@@ -107,8 +123,17 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
+
+        // ตรวจสอบว่ามี serviceCharge data หรือไม่
+        if (data['serviceCharge'] != null) {
+          setState(() {
+            serviceChargeData = data['serviceCharge'];
+            // ใช้ totalAmount แทน amount เดิม เมื่อมี serviceCharge
+            displayAmount = (serviceChargeData!['totalAmount'] as num?)?.toInt() ?? widget.amount;
+          });
+        }
+
         // Assuming API returns JSON like { "qrString": "..." }
-        print(data);
         listenToBankSocket(data['transactionId']);
         setState(() {
           qrData = data['qrCode'];
@@ -128,9 +153,8 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
   }
 
   listenToBankSocket(transactionId) {
-    print("Start listening to bank socket...");
-    Socket socket = io(
-      "https://payment-gateway.lailaolab.com",
+    Socket socket = IO.io(
+      PhajayConfig.baseUrl,
       OptionBuilder()
           .setTransports(['websocket']) // for Flutter or Dart VM
           .disableAutoConnect() // disable auto-connection
@@ -138,61 +162,27 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
     );
     socket.connect(); // Explicitly connect the socket
     socket.onConnect((_) {
-      print('Connected to socket server');
       socket.emit('msg', 'test');
     });
 
-    socket.on('join::${transactionId}', (data) {
-      print('Received data for join::${transactionId}: $data');
+    socket.on('join::$transactionId', (data) {
+      print('Received data for join::$transactionId: $data');
       if (data['message'] == 'SUCCESS') {
-        // Payment successful, navigate or show success message
-        print('Payment Successful!');
-        if (mounted) {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                // title: const Text('Payment Successful'),
-                content: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Lottie.asset(
-                      'packages/flutter_phajay/assets/payment_success.json',
-                      width: 200,
-                      height: 200,
-                    ),
-                    const SizedBox(height: 16),
-                    const Text(
-                      'Thank you for your payment. You will be redirected shortly.',
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(
-                        context,
-                      ).pop(); // Close the dialog immediately
-                      Navigator.of(context).pop(); // Navigate back
-                    },
-                    child: const Text('Close'),
-                  ),
-                ],
-              );
-            },
-          );
+        // Check if payment callback already called to prevent duplicates using global state
+        if (!PaymentState().isPaymentCompleted && mounted) {
+          print('🎉 Socket SUCCESS received - calling callback');
+          PaymentState().markPaymentCompleted();
 
-          Future.delayed(const Duration(seconds: 5), () {
-            if (mounted) {
-              Navigator.of(context).pop(); // Close the dialog
-              Navigator.of(context).pop(); // Navigate back
-            }
-          });
+          // Call the required success callback
+          Navigator.of(context).pop();
+          widget.onPaymentSuccess();
+        } else {
+          print('⚠️ Socket SUCCESS received but payment already completed');
         }
       } else if (data['message'] == 'FAILED') {
-        // Payment failed, navigate or show failure message
-        print('Payment Failed!');
+        // Call the required error callback
+        final errorMsg = 'Payment failed';
+        widget.onPaymentError(errorMsg);
       }
     });
 
@@ -223,8 +213,23 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
       logoPath = 'packages/flutter_phajay/assets/bcel.png';
     } else if (widget.bankName == "LDB") {
       logoPath = 'packages/flutter_phajay/assets/ldb.png';
-    } else if (widget.bankName == "INDOCHINA BANK") {
+    } else if (widget.bankName == "STB") {
+      logoPath = 'packages/flutter_phajay/assets/stb-logo.png';
+    } else if (widget.bankName == "INDOCHINA BANK" ||
+        widget.bankName == "Indochina Bank") {
       logoPath = 'packages/flutter_phajay/assets/indochina.png';
+    } else if (widget.bankName == "PromtPay") {
+      logoPath = 'packages/flutter_phajay/assets/PromptPay-logo.png';
+    } else if (widget.bankName == "Lao QR") {
+      logoPath = 'packages/flutter_phajay/assets/lao_qr.png';
+    } else if (widget.bankName == "Thai QR") {
+      logoPath = 'packages/flutter_phajay/assets/thai_qr.png';
+    } else if (widget.bankName == "UnionPay") {
+      logoPath = 'packages/flutter_phajay/assets/UnionPay-logo.png';
+    } else if (widget.bankName == "KHQR") {
+      logoPath = 'packages/flutter_phajay/assets/khor-qr-logo.jpeg';
+    } else if (widget.bankName == "NAPAS") {
+      logoPath = 'packages/flutter_phajay/assets/napas.png';
     } else if (widget.bankName == "ALIPAY") {
       logoPath = 'packages/flutter_phajay/assets/alipay.png';
     } else if (widget.bankName == "WECHATPAY") {
@@ -262,18 +267,31 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(
-              '${formatThousand(widget.amount)} LAK',
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
+            if (isLoading) ...[
+              Lottie.asset(
+                'packages/flutter_phajay/assets/loading_animation.json',
+                width: 60,
+                height: 60,
               ),
-            ),
+              const SizedBox(height: 8),
+              Text(
+                'Loading Amount...',
+                style: PhajayTheme.bodyText.copyWith(color: Colors.grey),
+              ),
+            ] else ...[
+              Text(
+                '${formatThousand(displayAmount)} LAK',
+                style: PhajayTheme.heading1.copyWith(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+            ],
             const SizedBox(height: 8),
-            const Text(
-              'Transaction Code',
-              style: TextStyle(color: Colors.black54),
+            Text(
+              'Description',
+              style: PhajayTheme.bodyTextSmall.copyWith(color: Colors.black54),
             ),
             const SizedBox(height: 4),
             Text(
@@ -335,13 +353,32 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Center(
-                        child: QrImageView(
-                          data: qrData ?? 'Loading...',
-                          version: QrVersions.auto,
-                          size: 200.0,
-                          foregroundColor:
-                              Colors.grey.shade800, // Set to a darker grey
-                        ),
+                        child: isLoading
+                            ? Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Lottie.asset(
+                                    'packages/flutter_phajay/assets/loading_animation.json',
+                                    width: 80,
+                                    height: 80,
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'Generating QR...',
+                                    style: PhajayTheme.caption.copyWith(
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                ],
+                              )
+                            : QrImageView(
+                                data: qrData ?? 'Loading...',
+                                version: QrVersions.auto,
+                                size: 200.0,
+                                foregroundColor: Colors
+                                    .grey
+                                    .shade800, // Set to a darker grey
+                              ),
                       ),
                     ),
                   const SizedBox(height: 16),

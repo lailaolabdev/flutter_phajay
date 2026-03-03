@@ -4,7 +4,8 @@ String formatTime(Duration d) {
   return "$minutes:$seconds";
 }
 
-String formatThousand(num number) {
+String formatThousand(num? number) {
+  if (number == null) return '0';
   final str = number.toStringAsFixed(0); // keep integer only
   final buffer = StringBuffer();
   int count = 0;
