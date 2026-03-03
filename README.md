@@ -401,18 +401,6 @@ class PaymentExampleScreen extends StatelessWidget {
     );
   }
 }
-```
-      body: Center(
-        child: PaymentLinkScreen(
-          amount: 100,
-          description: "Test Payment",
-          publicKey: r"{YOUR_SECRET_KEY}",
-        ),
-      ),
-    );
-  }
-}
-```
 
 ---
 
