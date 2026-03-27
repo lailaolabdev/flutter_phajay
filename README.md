@@ -27,7 +27,7 @@ Add this to your **pubspec.yaml**:
 
 ```yaml
 dependencies:
-  flutter_phajay: ^0.0.17
+  flutter_phajay: ^0.0.18
 ```
 
 **Note**: `google_fonts` is automatically included as a dependency of `flutter_phajay` for Noto Sans Lao font support, so you don't need to add it manually.
@@ -293,27 +293,208 @@ To integrate the `PaymentLinkScreen` widget, use the following code snippet:
 
 ```dart
 PaymentLinkScreen(
-  amount: 100, // Replace with the desired amount
-  description: "Test Payment", // Replace with your payment description
-  publicKey: r"{YOUR_SECRET_KEY}", // Replace with your secret key
+  amount: 100, // Amount in LAK (Required)
+  description: "Test Payment from Flutter", // Payment description (Required)
+  publicKey: r"$2a$10$7pBgohWIIovcMxeAr7ItX.W1TkCkSIFZeRIjkTb3ZPvooztM8Kl0S", // Your PhaJay public key (Required)
+  orderNo: "ORDER${DateTime.now().millisecondsSinceEpoch}", // Unique order number (Optional)
+  tag1: "flutter_app", // Custom tag 1 (Optional)
+  tag2: "mobile_payment", // Custom tag 2 (Optional) 
+  tag3: "v1.0.0", // Custom tag 3 (Optional)
   onPaymentSuccess: () {
     // Handle payment success
-    print('Payment successful!');
+    print('🎉 Payment successful!');
+    // Navigate to success screen or show success dialog
   },
   onPaymentError: (String error) {
     // Handle payment error
-    print('Payment failed: $error');
+    print('❌ Payment failed: $error');
+    // Show error dialog or navigate to error screen
   },
 );
+```
+
+#### Required Parameters:
+- **`amount`** (int): Payment amount in LAK
+- **`description`** (String): Description of the payment
+- **`publicKey`** (String): Your PhaJay public key from dashboard
+- **`onPaymentSuccess`** (Function): Callback when payment succeeds
+- **`onPaymentError`** (Function): Callback when payment fails
+
+#### Optional Parameters:
+- **`orderNo`** (String): Unique order identifier
+- **`tag1`**, **`tag2`**, **`tag3`** (String): Custom tracking tags
+
+### Complete Example
+
+Here's a complete example showing how to integrate PaymentLinkScreen in your app:
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:flutter_phajay/flutter_phajay.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListenableBuilder(
+      listenable: PhajayLocalizations(),
+      builder: (context, child) {
+        return MaterialApp(
+          title: 'PhaJay Payment Demo',
+          theme: PhajayTheme.lightTheme, // Apply PhaJay theme
+          locale: PhajayLocalizations.locale, // Support language switching
+          localizationsDelegates: PhajayLocalizations.localizationsDelegates,
+          supportedLocales: PhajayLocalizations.supportedLocales,
+          home: const PaymentDemo(),
+        );
+      },
+    );
+  }
+}
+
+class PaymentDemo extends StatefulWidget {
+  const PaymentDemo({super.key});
+
+  @override
+  State<PaymentDemo> createState() => _PaymentDemoState();
+}
+
+class _PaymentDemoState extends State<PaymentDemo> {
+  final TextEditingController _amountController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
+  bool showPaymentScreen = false;
+
+  @override
+  Widget build(BuildContext context) {
+    if (showPaymentScreen) {
+      // Show PhaJay Payment Screen
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Payment'),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => setState(() => showPaymentScreen = false),
+          ),
+        ),
+        body: PaymentLinkScreen(
+          amount: int.tryParse(_amountController.text) ?? 1000,
+          description: _descriptionController.text.isEmpty
+              ? "Test Payment"
+              : _descriptionController.text,
+          publicKey: r"$2a$10$7pBgohWIIovcMxeAr7ItX.W1TkCkSIFZeRIjkTb3ZPvooztM8Kl0S",
+          orderNo: "ORDER${DateTime.now().millisecondsSinceEpoch}",
+          onPaymentSuccess: () {
+            // Handle success
+            setState(() => showPaymentScreen = false);
+            _showSuccessDialog();
+          },
+          onPaymentError: (error) {
+            // Handle error
+            setState(() => showPaymentScreen = false);
+            _showErrorDialog(error);
+          },
+        ),
+      );
+    }
+
+    // Show payment form
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('PhaJay Payment Demo'),
+        actions: [
+          // Language switcher
+          PopupMenuButton<PhajayLanguage>(
+            onSelected: (language) => PhajayLocalizations.setLanguage(language),
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: PhajayLanguage.english,
+                child: Text('🇺🇸 English'),
+              ),
+              const PopupMenuItem(
+                value: PhajayLanguage.lao,
+                child: Text('🇱🇦 ພາສາລາວ'),
+              ),
+            ],
+          ),
+        ],
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            TextField(
+              controller: _amountController,
+              decoration: const InputDecoration(
+                labelText: 'Amount (LAK)',
+                hintText: 'Enter amount',
+              ),
+              keyboardType: TextInputType.number,
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _descriptionController,
+              decoration: const InputDecoration(
+                labelText: 'Description',
+                hintText: 'Enter payment description',
+              ),
+            ),
+            const SizedBox(height: 32),
+            ElevatedButton(
+              onPressed: () => setState(() => showPaymentScreen = true),
+              child: const Text('Start Payment'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showSuccessDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('🎉 Payment Success'),
+        content: const Text('Your payment has been processed successfully!'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showErrorDialog(String error) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('❌ Payment Error'),
+        content: Text('Payment failed: $error'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+}
 ```
 
 ---
 
 ## ⚙️ Configuration
 
-### Setting Base URL
+### Environment Configuration
 
-You can customize the payment gateway base URL for different environments:
+You can configure the payment gateway environment:
 
 ```dart
 import 'package:flutter_phajay/flutter_phajay.dart';
@@ -326,30 +507,68 @@ void main() {
   PhajayConfig.setBaseUrl('https://staging-payment-gateway.phajay.co');
   
   // Option 3: Environment-specific configuration
-  if (isProduction()) {
-    PhajayConfig.setBaseUrl('https://payment-gateway.phajay.co');
-  } else if (isStaging()) {
-    PhajayConfig.setBaseUrl('https://staging-payment-gateway.phajay.co');
+  const bool isProduction = bool.fromEnvironment('PRODUCTION', defaultValue: false);
+  
+  if (isProduction) {
+    PhajayConfig.resetToDefault(); // Use production URL
   } else {
-    PhajayConfig.setBaseUrl('http://localhost:3000');
+    PhajayConfig.setBaseUrl('https://staging-payment-gateway.phajay.co');
   }
   
   runApp(MyApp());
 }
 
 // Available configuration methods:
-// PhajayConfig.baseUrl               // Get current base URL
-// PhajayConfig.setBaseUrl(url)       // Set custom base URL
-// PhajayConfig.resetToDefault()      // Reset to default production URL
-
-// Available API endpoints:
-// PhajayConfig.createPaymentLink     // Payment link creation
-// PhajayConfig.creditCardPayment     // Credit card payment
-// PhajayConfig.wechatAlipayPayment   // WeChat/Alipay payment
-// PhajayConfig.getTransaction        // Transaction status
-// PhajayConfig.getPaymentMethods     // Payment methods
-// PhajayConfig.uploadsPath           // Assets/uploads path
+PhajayConfig.baseUrl;              // Get current base URL
+PhajayConfig.setBaseUrl(url);      // Set custom base URL  
+PhajayConfig.resetToDefault();     // Reset to default production URL
 ```
+
+### Getting Your Public Key
+
+1. Sign up at [PhaJay Dashboard](https://dashboard.phajay.co)
+2. Create a new merchant account
+3. Copy your public key from the API section
+4. Use it in your `PaymentLinkScreen` widget
+
+**Note**: Never use your secret key in client-side code. Only use the public key.
+
+---
+
+## 💳 Supported Payment Methods
+
+Flutter Phajay supports various payment methods available in Laos:
+
+### 🏦 Mobile Banking
+- **BCEL OnePay** - Bank of China (Laos) mobile banking
+- **LDB Mobile** - Lao Development Bank mobile app
+- **JDB Mobile** - Joint Development Bank mobile app  
+- **STB Mobile** - Sacombank mobile banking
+- **Indochina Bank TrustPay** - Indochina Bank mobile payment
+
+### 📱 QR Code Payments
+- **Lao QR** - National QR payment standard
+- **BCEL QR** - Bank-specific QR codes
+- **Universal QR** - Cross-bank QR payments
+
+### 💳 Credit/Debit Cards
+- **Visa** - International Visa cards
+- **Mastercard** - International Mastercard  
+- **UnionPay** - Chinese UnionPay cards
+- **Local Cards** - Domestic bank cards
+
+### 🌐 Digital Wallets
+- **Alipay** - Chinese digital wallet
+- **WeChat Pay** - Chinese mobile payment
+
+### Payment Flow
+1. User selects payment method
+2. App generates QR code or redirects to banking app
+3. User completes payment in their banking app
+4. App receives payment confirmation via deep links
+5. Success/error callbacks are triggered
+
+All payment methods support real-time status updates and automatic return to your app after payment completion.
 
 ### Theme Customization
 
@@ -486,22 +705,79 @@ class PaymentExampleScreen extends StatelessWidget {
 
 ### Common Issues
 
-#### 1. Deep Link Not Working
+#### 1. Payment API Errors
+```dart
+// ❌ Common error: Invalid public key format
+PaymentLinkScreen(
+  publicKey: "invalid-key-format", // Wrong format
+  // ... other parameters
+);
+
+// ✅ Correct: Use the exact key from PhaJay dashboard  
+PaymentLinkScreen(
+  publicKey: r"$2a$10$7pBgohWIIovcMxeAr7ItX.W1TkCkSIFZeRIjkTb3ZPvooztM8Kl0S",
+  // ... other parameters
+);
+```
+
+#### 2. Deep Link Not Working
 - **Android**: Ensure the intent filter is correctly added to your MainActivity
 - **iOS**: Verify CFBundleURLSchemes is properly configured in Info.plist
 - Test deep links using: `adb shell am start -W -a android.intent.action.VIEW -d "phajay://payment?status=success" com.yourapp.package`
 
-#### 2. Banking Apps Not Opening
+#### 3. Language Not Switching
+```dart
+// ❌ Wrong: MaterialApp without ListenableBuilder
+MaterialApp(
+  localizationsDelegates: PhajayLocalizations.localizationsDelegates,
+  home: MyApp(),
+)
+
+// ✅ Correct: Wrap with ListenableBuilder for reactive language switching
+ListenableBuilder(
+  listenable: PhajayLocalizations(),
+  builder: (context, child) {
+    return MaterialApp(
+      locale: PhajayLocalizations.locale,
+      localizationsDelegates: PhajayLocalizations.localizationsDelegates,
+      supportedLocales: PhajayLocalizations.supportedLocales,
+      home: MyApp(),
+    );
+  },
+)
+```
+
+#### 4. Banking Apps Not Opening
 - **Android**: Add required package queries in AndroidManifest.xml
 - **iOS**: Include LSApplicationQueriesSchemes in Info.plist
 - Ensure target banking apps are installed on the device
 
-#### 3. Payment Callbacks Not Received
+#### 5. Payment Callbacks Not Received
 - Verify your app can handle the `phajay://` URL scheme
 - Check that app_links plugin is properly configured
 - Ensure your app is in foreground when payment completes
 
-#### 4. Font Rendering Issues
+#### 6. Network/API Issues
+```dart
+// Add error handling for network issues
+onPaymentError: (String error) {
+  if (error.contains('network')) {
+    // Handle network error
+    showDialog(/* Network error dialog */);
+  } else if (error.contains('timeout')) {
+    // Handle timeout
+    showDialog(/* Timeout dialog */);
+  }
+  // Handle other errors
+},
+```
+
+#### 7. WebView Issues (Credit Cards)
+- Ensure `android:usesCleartextTraffic="true"` in AndroidManifest.xml
+- Add INTERNET permission
+- For iOS: Configure ATS settings if needed
+
+#### 8. Font Rendering Issues  
 - Apply PhajayTheme.lightTheme to your MaterialApp
 - Verify google_fonts dependency is added
 - Check internet connectivity for font downloads
