@@ -279,7 +279,7 @@ To integrate the `PaymentLinkScreen` widget, use the following code snippet:
 PaymentLinkScreen(
   amount: 100, // Amount in LAK (Required)
   description: "Test Payment from Flutter", // Payment description (Required)
-  publicKey: r"$2a$10$7pBgohWIIovcMxeAr7ItX.W1TkCkSIFZeRIjkTb3ZPvooztM8Kl0S", // Your PhaJay public key (Required)
+  publicKey: r"{YOUR_SECRET_KEY}", // Your PhaJay public key (Required)
   orderNo: "ORDER${DateTime.now().millisecondsSinceEpoch}", // Unique order number (Optional)
   tag1: "flutter_app", // Custom tag 1 (Optional)
   tag2: "mobile_payment", // Custom tag 2 (Optional) 
@@ -370,7 +370,7 @@ class _PaymentDemoState extends State<PaymentDemo> {
           description: _descriptionController.text.isEmpty
               ? "Test Payment"
               : _descriptionController.text,
-          publicKey: r"$2a$10$7pBgohWIIovcMxeAr7ItX.W1TkCkSIFZeRIjkTb3ZPvooztM8Kl0S",
+          publicKey: r"{YOUR_SECRET_KEY}",
           orderNo: "ORDER${DateTime.now().millisecondsSinceEpoch}",
           onPaymentSuccess: () {
             // Handle success
@@ -699,7 +699,7 @@ PaymentLinkScreen(
 
 // ✅ Correct: Use the exact key from PhaJay dashboard  
 PaymentLinkScreen(
-  publicKey: r"$2a$10$7pBgohWIIovcMxeAr7ItX.W1TkCkSIFZeRIjkTb3ZPvooztM8Kl0S",
+  publicKey: r"{YOUR_SECRET_KEY}",
   // ... other parameters
 );
 ```
