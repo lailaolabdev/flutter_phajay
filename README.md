@@ -126,22 +126,6 @@ Add comprehensive banking app support in your `android/app/src/main/AndroidManif
           <action android:name="android.intent.action.VIEW" />
           <data android:scheme="trustpay" />
         </intent>
-        <intent>
-          <action android:name="android.intent.action.VIEW" />
-          <data android:scheme="ldbmobile" />
-        </intent>
-        <intent>
-          <action android:name="android.intent.action.VIEW" />
-          <data android:scheme="jdbmobile" />
-        </intent>
-        <intent>
-          <action android:name="android.intent.action.VIEW" />
-          <data android:scheme="stbmobile" />
-        </intent>
-        <intent>
-          <action android:name="android.intent.action.VIEW" />
-          <data android:scheme="laoqur" />
-        </intent>
     </queries>
     
     <application>
