@@ -5,16 +5,29 @@ void main() {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: PhajayTheme.lightTheme, // Apply Noto Sans Lao theme
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+    return ListenableBuilder(
+      listenable: PhajayLocalizations(),
+      builder: (context, child) {
+        return MaterialApp(
+          title: 'Flutter Demo',
+          theme: PhajayTheme.lightTheme, // Apply Noto Sans Lao theme
+          locale: PhajayLocalizations.locale,
+          localizationsDelegates: PhajayLocalizations.localizationsDelegates,
+          supportedLocales: PhajayLocalizations.supportedLocales,
+          home: const MyHomePage(title: 'Flutter Demo Home Page'),
+        );
+      },
     );
   }
 }

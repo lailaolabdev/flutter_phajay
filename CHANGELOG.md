@@ -1,3 +1,28 @@
+## 0.0.18
+
+* **BREAKING:** Modernized localization system with Flutter's standard AppLocalizations
+  - Migrated from custom PhajayLocalizations to Flutter's built-in i18n system
+  - Added comprehensive ARB files (app_en.arb, app_lo.arb) with 25+ error message translations
+  - Implemented reactive language switching with ChangeNotifier pattern
+  - Fixed Lao language translation functionality that was previously broken
+* **Enhanced AndroidManifest.xml configuration:**
+  - Added INTERNET and ACCESS_NETWORK_STATE permissions for API calls
+  - Enabled cleartext traffic for HTTP support
+  - Added comprehensive deep link support for all banking apps (LDB, JDB, STB, Lao QR)
+  - Enhanced phajay:// scheme handling with success/error callbacks
+* **Improved Error Handling:**
+  - Added standardized error message translations for all API responses
+  - Implemented consistent SnackBar styling across payment screens
+  - Enhanced button state management based on data availability
+* **WebView & Payment Integration:**
+  - Full flutter_inappwebview support for credit card payments
+  - Improved deep linking from banking applications
+  - Enhanced payment status monitoring with timer-based checks
+* **UI/UX Improvements:**
+  - Consistent theme application across all payment screens
+  - Better loading states and user feedback
+  - Improved button disable logic when payment data unavailable
+
 ## 0.0.17
 
 * Fixed README.md markdown formatting issues for proper GitHub rendering.

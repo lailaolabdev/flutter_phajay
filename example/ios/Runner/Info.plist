@@ -49,6 +49,7 @@
 	<array>
 		<string>jdbbank</string>
 		<string>onepay</string>
+		<string>trustpay</string>
 	</array>
 	<key>CFBundleURLTypes</key>
 	<array>

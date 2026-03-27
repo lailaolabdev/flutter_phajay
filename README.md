@@ -50,9 +50,12 @@ Add the following permission to your `android/app/src/main/AndroidManifest.xml` 
 
 ```xml
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Required permissions -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     
-    <application>
+    <application
+        android:usesCleartextTraffic="true">
         <!-- Your app configuration -->
     </application>
 </manifest>
@@ -75,7 +78,7 @@ Add the following intent filter inside the `<activity>` tag in your `android/app
         <category android:name="android.intent.category.LAUNCHER"/>
     </intent-filter>
     
-    <!-- Add this intent filter for PhaJay payment callbacks -->
+    <!-- Add these intent filters for PhaJay payment callbacks -->
     <intent-filter android:autoVerify="true">
         <action android:name="android.intent.action.VIEW" />
         <category android:name="android.intent.category.DEFAULT" />
@@ -83,22 +86,62 @@ Add the following intent filter inside the `<activity>` tag in your `android/app
         <data android:scheme="phajay" 
               android:host="payment" />
     </intent-filter>
+    
+    <!-- Additional callbacks for payment status -->
+    <intent-filter>
+        <action android:name="android.intent.action.VIEW" />
+        <category android:name="android.intent.category.DEFAULT" />
+        <category android:name="android.intent.category.BROWSABLE" />
+        <data android:scheme="phajay" 
+              android:host="success" />
+    </intent-filter>
+    
+    <intent-filter>
+        <action android:name="android.intent.action.VIEW" />
+        <category android:name="android.intent.category.DEFAULT" />
+        <category android:name="android.intent.category.BROWSABLE" />
+        <data android:scheme="phajay" 
+              android:host="error" />
+    </intent-filter>
 </activity>
 ```
 
-#### 3. Bank App Integration (Optional)
+#### 3. Bank App Integration (Required for Banking Deep Links)
 
-If your app needs to open specific banking apps, add queries permissions in your `android/app/src/main/AndroidManifest.xml`:
+Add comprehensive banking app support in your `android/app/src/main/AndroidManifest.xml`:
 
 ```xml
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Add this section before <application> -->
     <queries>
-        <!-- For opening JDB banking app -->
-        <package android:name="com.jdb.mobile.jdb" />
-        <!-- For opening BCEL One app -->
-        <package android:name="com.bcel.one" />
-        <!-- Add other banking apps as needed -->
+        <intent>
+          <action android:name="android.intent.action.VIEW" />
+          <data android:scheme="onepay" /> 
+        </intent>
+        <intent>
+          <action android:name="android.intent.action.VIEW" />
+          <data android:scheme="https" />
+        </intent>
+        <intent>
+          <action android:name="android.intent.action.VIEW" />
+          <data android:scheme="trustpay" />
+        </intent>
+        <intent>
+          <action android:name="android.intent.action.VIEW" />
+          <data android:scheme="ldbmobile" />
+        </intent>
+        <intent>
+          <action android:name="android.intent.action.VIEW" />
+          <data android:scheme="jdbmobile" />
+        </intent>
+        <intent>
+          <action android:name="android.intent.action.VIEW" />
+          <data android:scheme="stbmobile" />
+        </intent>
+        <intent>
+          <action android:name="android.intent.action.VIEW" />
+          <data android:scheme="laoqur" />
+        </intent>
     </queries>
     
     <application>
@@ -130,11 +173,12 @@ Add the following to your `ios/Runner/Info.plist` file:
         </dict>
     </array>
     
-    <!-- Allow opening banking apps (Required for JDB and BCEL integration) -->
+    <!-- Allow opening banking apps (Required for JDB, LDB and BCEL integration) -->
     <key>LSApplicationQueriesSchemes</key>
     <array>
         <string>jdbbank</string>
         <string>onepay</string>
+        <string>trustpay</string>
     </array>
 </dict>
 ```
@@ -211,11 +255,37 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'My App',
       theme: PhajayTheme.lightTheme, // Apply Noto Sans Lao theme
+      // Add localization support
+      localizationsDelegates: PhajayLocalizations.localizationsDelegates,
+      supportedLocales: PhajayLocalizations.supportedLocales,
       home: const MyHomePage(),
     );
   }
 }
 ```
+
+### Step 4: Language Support (Optional)
+
+Flutter Phajay supports both English and Lao languages. Users can switch languages dynamically:
+
+```dart
+import 'package:flutter_phajay/flutter_phajay.dart';
+
+// Switch to Lao language
+PhajayLocalizations.setLanguage(PhajayLanguage.lao);
+
+// Switch to English language
+PhajayLocalizations.setLanguage(PhajayLanguage.english);
+
+// Get current language
+PhajayLanguage currentLang = PhajayLocalizations.currentLanguage;
+```
+
+**Supported Languages:**
+- 🇺🇸 English (en) - Default
+- 🇱🇦 Lao (lo) - ພາສາລາວ
+
+All UI text, error messages, and payment instructions are automatically translated.
 
 ### Step 3: Add the `PaymentLinkScreen` Widget
 
@@ -564,6 +634,7 @@ Add the following configuration to your iOS `ios/Runner/Info.plist` file inside 
 <array>
     <string>jdbbank</string>
     <string>onepay</string>
+    <string>trustpay</string>
     <!-- Add additional banking app schemes as needed -->
 </array>
 ```

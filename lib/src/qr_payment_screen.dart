@@ -6,6 +6,7 @@ import 'package:flutter_phajay/src/helper.dart';
 import 'package:flutter_phajay/src/payment_state.dart';
 import 'package:flutter_phajay/src/config.dart';
 import 'package:flutter_phajay/src/theme.dart';
+import 'package:flutter_phajay/l10n/app_localizations.dart';
 import 'package:http/http.dart' as http;
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
@@ -49,6 +50,116 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
 
   late Duration duration;
   Timer? timer;
+
+  // Helper method to format error message from API response
+  String _formatErrorMessage(String message) {
+    if (!mounted) return message;
+    
+    final localizations = AppLocalizations.of(context)!;
+    
+    // Check for exact matches with localization keys
+    switch (message.toLowerCase()) {
+      case 'orderno is required as string':
+        return localizations.orderNoIsRequired;
+      case 'amount is required.':
+      case 'amount is required':
+        return localizations.amountIsRequired;
+      case 'amount must be a valid number.':
+      case 'amount must be a valid number':
+        return localizations.amountMustBeValidNumber;
+      case 'description is required':
+        return localizations.descriptionIsRequired;
+      case 'amount must be between 1 and 999 for non-kyc users.':
+      case 'amount must be between 1 and 999 for non-kyc users':
+        return localizations.amountMustBeBetween1And999ForNonKyc;
+      case 'amount exceeds the limit of 100,000,000 for kyc users.':
+      case 'amount exceeds the limit of 100,000,000 for kyc users':
+        return localizations.amountExceedsLimitForKycUsers;
+      case 'amount must be greater than 1 for kyc users.':
+      case 'amount must be greater than 1 for kyc users':
+        return localizations.amountMustBeGreaterThan1ForKyc;
+      case 'amount exceeds the limit,can\'t be more than 999 lak for banned users.':
+      case 'amount exceeds the limit,can\'t be more than 999 lak for banned users':
+        return localizations.amountExceedsLimitForBannedUsers;
+      case 'affiliate percent must be between 0 and 90.':
+      case 'affiliate percent must be between 0 and 90':
+        return localizations.affiliatePercentMustBeBetween0And90;
+      case 'amount must be greater than affiliatedata amount':
+        return localizations.amountMustBeGreaterThanAffiliateAmount;
+      case 'user not found.':
+      case 'user not found':
+        return localizations.userNotFound;
+      case 'rate limit exceeded. max 20 transactions/day allowed.':
+      case 'rate limit exceeded. max 20 transactions/day allowed':
+        return localizations.rateLimitExceeded;
+      case 'internal_server_error':
+        return localizations.internalServerError;
+      case 'payment is not found':
+        return localizations.paymentNotFound;
+      case 'description must not contain lao or thai text':
+        return localizations.descriptionMustNotContainLaoOrThaiText;
+      case 'transaction is expired':
+        return localizations.transactionIsExpired;
+      case 'jdb_error_not_success':
+        return localizations.jdbErrorNotSuccess;
+      case 'failed to generate qr data':
+        return localizations.failedToGenerateQrData;
+      case 'description must not contain \'-\' character.':
+      case 'description must not contain \'-\' character':
+        return localizations.descriptionMustNotContainDashCharacter;
+      case 'description must not exceed 25 characters.':
+      case 'description must not exceed 25 characters':
+        return localizations.descriptionMustNotExceed25Characters;
+      case 'credit card payment is not allowed for non kyc user':
+        return localizations.creditCardPaymentNotAllowedForNonKyc;
+      case 'exchange_not_found':
+        return localizations.exchangeNotFound;
+      case 'amount_not_found':
+        return localizations.amountNotFound;
+      case 'callback_setting_not_found':
+        return localizations.callbackSettingNotFound;
+      default:
+        // Check if message is in UPPERCASE_WITH_UNDERSCORE format
+        if (message.contains('_') && message == message.toUpperCase()) {
+          // Convert AMOUNT_NOT_FOUND to Amount not found as fallback
+          return message
+              .toLowerCase()
+              .split('_')
+              .map((word) => word.isEmpty ? '' : word[0].toUpperCase() + word.substring(1))
+              .join(' ');
+        }
+        return message;
+    }
+  }
+
+  // Error message extraction helper
+  String _extractErrorMessage(http.Response response) {
+    try {
+      final Map<String, dynamic> responseData = jsonDecode(response.body);
+      String? errorMessage;
+      
+      // Priority: detail > message > HTTP status
+      if (responseData.containsKey('detail') && 
+          responseData['detail'] != null && 
+          responseData['detail'].toString().isNotEmpty) {
+        errorMessage = responseData['detail'].toString();
+      }
+      else if (responseData.containsKey('message') && 
+          responseData['message'] != null && 
+          responseData['message'].toString().isNotEmpty) {
+        errorMessage = responseData['message'].toString();
+      }
+      
+      if (errorMessage != null) {
+        return _formatErrorMessage(errorMessage);
+      }
+    } catch (e) {
+      // JSON parsing failed, return default HTTP error
+    }
+    
+    // Default HTTP error message
+    return response.reasonPhrase ?? 'Unknown error';
+  }
 
   @override
   void initState() {
@@ -109,6 +220,7 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
       setState(() {
         isLoading = true;
       });
+      print("test1");
 
       final response = await http.post(
         Uri.parse(bankUrl),
@@ -119,8 +231,10 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
       setState(() {
         isLoading = false;
       });
+      print("test2: ${response.statusCode}");
 
       if (response.statusCode == 200) {
+        print("QR code generated successfully: ${response.body}");
         final data = jsonDecode(response.body);
 
         // ตรวจสอบว่ามี serviceCharge data หรือไม่
@@ -139,15 +253,37 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
           linkData = data['link'];
         });
       } else {
+        print("Failed to generate QR code: ${response.statusCode} - ${response.body}");
+        final errorMessage = _extractErrorMessage(response);
         setState(() {
-          error = 'Error ${response.statusCode}: ${response.reasonPhrase}';
+          error = errorMessage;
         });
+        // Show error in SnackBar
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(errorMessage, style: PhajayTheme.bodyText.copyWith(color: Colors.white)),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
       }
     } catch (e) {
+      print("Error generating QR code: $e");
+      final errorMessage = e.toString();
       setState(() {
-        error = e.toString();
+        error = errorMessage;
         isLoading = false;
       });
+      // Show error in SnackBar
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${AppLocalizations.of(context)!.error}: $errorMessage', style: PhajayTheme.bodyText.copyWith(color: Colors.white)),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -190,7 +326,7 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
     socket.onError((error) => print('Socket error: $error'));
   }
 
-  void openJDBDeeplink(link) async {
+  void openDeepLink(link) async {
     final url = Uri.parse(link);
 
     if (await canLaunchUrl(url)) {
@@ -251,12 +387,12 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
         centerTitle: true,
         title: Row(
           mainAxisSize: MainAxisSize.min,
-          children: const [
-            Icon(Icons.access_time, color: Colors.orange),
-            SizedBox(width: 8),
+          children: [
+            const Icon(Icons.access_time, color: Colors.orange),
+            const SizedBox(width: 8),
             Text(
-              'Waiting For Payment',
-              style: TextStyle(color: Colors.black87, fontSize: 18),
+              AppLocalizations.of(context)!.waitingForPayment,
+              style: const TextStyle(color: Colors.black87, fontSize: 18),
             ),
           ],
         ),
@@ -274,7 +410,7 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Loading Amount...',
+                AppLocalizations.of(context)!.generatingPaymentLink,
                 style: PhajayTheme.bodyText.copyWith(color: Colors.grey),
               ),
             ] else ...[
@@ -289,20 +425,20 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
             ],
             const SizedBox(height: 8),
             Text(
-              'Description',
+              AppLocalizations.of(context)!.description,
               style: PhajayTheme.bodyTextSmall.copyWith(color: Colors.black54),
             ),
             const SizedBox(height: 4),
             Text(
               "${widget.description}",
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.black87, fontSize: 13),
+              style: const TextStyle(color: Colors.black87, fontSize: 13),
             ),
             const SizedBox(height: 20),
 
             Text(
               formatTime(duration),
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 32,
                 fontWeight: FontWeight.bold,
                 color: Colors.red,
@@ -319,9 +455,9 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
               ),
               child: Column(
                 children: [
-                  const Text(
-                    'Pay with bank app',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                  Text(
+                    AppLocalizations.of(context)!.payWithBankApp,
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                   ),
                   const SizedBox(height: 8),
                   Image.asset(
@@ -329,9 +465,9 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
                     height: 40,
                   ),
                   const SizedBox(height: 16),
-                  const Text(
-                    'Or Scan QR',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                  Text(
+                    AppLocalizations.of(context)!.orScanQR,
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                   ),
                   const SizedBox(height: 12),
                   // Replace with actual QR image (use qr_flutter for generated QR)
@@ -363,21 +499,63 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
                                   ),
                                   const SizedBox(height: 8),
                                   Text(
-                                    'Generating QR...',
+                                    AppLocalizations.of(context)!.generatingQR,
                                     style: PhajayTheme.caption.copyWith(
                                       color: Colors.grey,
                                     ),
                                   ),
                                 ],
                               )
-                            : QrImageView(
-                                data: qrData ?? 'Loading...',
-                                version: QrVersions.auto,
-                                size: 200.0,
-                                foregroundColor: Colors
-                                    .grey
-                                    .shade800, // Set to a darker grey
-                              ),
+                            : (qrData != null && qrData!.isNotEmpty)
+                                ? QrImageView(
+                                    data: qrData!,
+                                    version: QrVersions.auto,
+                                    size: 200.0,
+                                    foregroundColor: Colors
+                                        .grey
+                                        .shade800, // Set to a darker grey
+                                  )
+                                : Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const Icon(
+                                        Icons.error_outline,
+                                        color: Colors.red,
+                                        size: 48,
+                                      ),
+                                      const SizedBox(height: 12),
+                                      Text(
+                                        AppLocalizations.of(context)!.qrCodeNotGenerated,
+                                        style: PhajayTheme.bodyTextSmall.copyWith(
+                                          color: Colors.red,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      const SizedBox(height: 16),
+                                      ElevatedButton.icon(
+                                        onPressed: () {
+                                          setState(() {
+                                            qrData = null;
+                                            error = null;
+                                          });
+                                          _generateQr();
+                                        },
+                                        icon: const Icon(Icons.refresh),
+                                        label: Text(AppLocalizations.of(context)!.tryAgain),
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.blue,
+                                          foregroundColor: Colors.white,
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 16,
+                                            vertical: 8,
+                                          ),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(6),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                       ),
                     ),
                   const SizedBox(height: 16),
@@ -385,18 +563,18 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
                     width: double.infinity,
                     child: ElevatedButton.icon(
                       icon: const Icon(Icons.send_to_mobile_rounded),
-                      label: const Text('Open Bank App'),
+                      label: Text(AppLocalizations.of(context)!.openBankApp),
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 14),
-                        backgroundColor: Color(0xFF1E3C72),
+                        backgroundColor: const Color(0xFF1E3C72),
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      onPressed: isLoading
+                      onPressed: (isLoading || linkData == null || linkData!.isEmpty)
                           ? null
-                          : () => openJDBDeeplink(linkData),
+                          : () => openDeepLink(linkData),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -404,16 +582,16 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
                     width: double.infinity,
                     child: ElevatedButton.icon(
                       icon: const Icon(Icons.download),
-                      label: const Text('Save QR'),
+                      label: Text(AppLocalizations.of(context)!.saveQR),
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 14),
-                        backgroundColor: Color(0xFF1E3C72),
+                        backgroundColor: const Color(0xFF1E3C72),
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      onPressed: isLoading
+                      onPressed: (isLoading || qrData == null || qrData!.isEmpty)
                           ? null
                           : () {}, // TODO: Save QR logic
                     ),
@@ -431,16 +609,16 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
                 color: Colors.blue.shade50,
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Text(
-                'Note :\nTransfer not available for cross-bank sometimes',
-                style: TextStyle(color: Colors.black87, fontSize: 14),
+              child: Text(
+                AppLocalizations.of(context)!.note,
+                style: const TextStyle(color: Colors.black87, fontSize: 14),
               ),
             ),
 
             const SizedBox(height: 16),
-            const Text(
-              '1. “Press Save QR Code” or take a screenshot of the QR code',
-              style: TextStyle(color: Colors.black54, fontSize: 13),
+            Text(
+              AppLocalizations.of(context)!.qrInstructions,
+              style: const TextStyle(color: Colors.black54, fontSize: 13),
             ),
           ],
         ),

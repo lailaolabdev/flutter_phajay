@@ -1,0 +1,252 @@
+{
+  "@@locale": "en",
+  "selectForPayment": "Select For Payment",
+  "@selectForPayment": {
+    "description": "Title for payment selection screen"
+  },
+  "transactionVerified": "The transaction has been successfully verified\nfor authenticity and security.",
+  "@transactionVerified": {
+    "description": "Message indicating transaction verification"
+  },
+  "totalAmount": "Total Amount",
+  "@totalAmount": {
+    "description": "Label for total amount"
+  },
+  "safetyMessage": "Your safety is our top priority\nRest assured that your payment is secure. Be confident that your information will always be protected.",
+  "@safetyMessage": {
+    "description": "Safety assurance message"
+  },
+  "generatingPaymentLink": "Generating Payment Link...",
+  "@generatingPaymentLink": {
+    "description": "Loading message while generating payment link"
+  },
+  "processingCreditCard": "Processing Credit Card Payment...",
+  "@processingCreditCard": {
+    "description": "Loading message for credit card processing"
+  },
+  "paymentLinkNotAvailable": "Payment link not available",
+  "@paymentLinkNotAvailable": {
+    "description": "Error message when payment link is not available"
+  },
+  "minimumAmountRequired": "Minimum amount for credit card payment is 5,000 LAK",
+  "@minimumAmountRequired": {
+    "description": "Error message for minimum amount requirement"
+  },
+  "minimumRequired": "Minimum 5,000 LAK required",
+  "@minimumRequired": {
+    "description": "Short minimum amount message"
+  },
+  "banksPayment": "Banks Payment",
+  "@banksPayment": {
+    "description": "Title for bank payment methods"
+  },
+  "creditCards": "Credit Cards",
+  "@creditCards": {
+    "description": "Title for credit card payment methods"
+  },
+  "qrPayments": "QR Payments",
+  "@qrPayments": {
+    "description": "Title for QR payment methods"
+  },
+  "wallets": "Wallets",
+  "@wallets": {
+    "description": "Title for wallet payment methods"
+  },
+  "fee": "Fee",
+  "@fee": {
+    "description": "Label for transaction fee"
+  },
+  "noPaymentUrlReceived": "No payment URL received from server",
+  "@noPaymentUrlReceived": {
+    "description": "Error message when payment URL is not received"
+  },
+  "processingPayment": "Processing {bankName} payment...",
+  "@processingPayment": {
+    "description": "Loading message for payment processing",
+    "placeholders": {
+      "bankName": {
+        "type": "String"
+      }
+    }
+  },
+  "paymentSuccess": "Payment Success",
+  "@paymentSuccess": {
+    "description": "Title for payment success screen"
+  },
+  "paymentSuccessful": "Payment Successful!",
+  "@paymentSuccessful": {
+    "description": "Success message"
+  },
+  "amount": "Amount",
+  "@amount": {
+    "description": "Label for amount"
+  },
+  "transactionId": "Transaction ID",
+  "@transactionId": {
+    "description": "Label for transaction ID"
+  },
+  "done": "Done",
+  "@done": {
+    "description": "Done button text"
+  },
+  "waitingForPayment": "Waiting for payment...",
+  "@waitingForPayment": {
+    "description": "Status message while waiting for payment"
+  },
+  "paymentCompleted": "Payment completed!",
+  "@paymentCompleted": {
+    "description": "Payment completion message"
+  },
+  "paymentCancelled": "Payment cancelled",
+  "@paymentCancelled": {
+    "description": "Payment cancellation message"
+  },
+  "paymentExpired": "Payment expired",
+  "@paymentExpired": {
+    "description": "Payment expiration message"
+  },
+  "tryAgain": "Try Again",
+  "@tryAgain": {
+    "description": "Try again button text"
+  },
+  "close": "Close",
+  "@close": {
+    "description": "Close button text"
+  },
+  "description": "Description",
+  "@description": {
+    "description": "Label for description"
+  },
+  "payWithBankApp": "Pay with bank app",
+  "@payWithBankApp": {
+    "description": "Text for pay with bank app button"
+  },
+  "orScanQR": "Or Scan QR",
+  "@orScanQR": {
+    "description": "Text for QR scan option"
+  },
+  "generatingQR": "Generating QR...",
+  "@generatingQR": {
+    "description": "Loading message while generating QR"
+  },
+  "qrCodeNotGenerated": "QR code not generated",
+  "@qrCodeNotGenerated": {
+    "description": "Error message when QR code fails to generate"
+  },
+  "openBankApp": "Open Bank App",
+  "@openBankApp": {
+    "description": "Open bank app button text"
+  },
+  "saveQR": "Save QR",
+  "@saveQR": {
+    "description": "Save QR button text"
+  },
+  "note": "Note :\nTransfer not available for cross-bank sometimes",
+  "@note": {
+    "description": "Note about cross-bank transfers"
+  },
+  "qrInstructions": "1. \"Press Save QR Code\" or take a screenshot of the QR code",
+  "@qrInstructions": {
+    "description": "Instructions for QR code usage"
+  },
+  "error": "Error",
+  "@error": {
+    "description": "General error label"
+  },
+  "orderNoIsRequired": "OrderNo is required as String",
+  "@orderNoIsRequired": {
+    "description": "Error when orderNo field is missing or invalid"
+  },
+  "amountIsRequired": "Amount is required",
+  "@amountIsRequired": {
+    "description": "Error when amount field is missing"
+  },
+  "amountMustBeValidNumber": "Amount must be a valid number",
+  "@amountMustBeValidNumber": {
+    "description": "Error when amount is not a valid number"
+  },
+  "descriptionIsRequired": "Description is required",
+  "@descriptionIsRequired": {
+    "description": "Error when description field is missing"
+  },
+  "amountMustBeBetween1And999ForNonKyc": "Amount must be between 1 and 999 for non-KYC users",
+  "@amountMustBeBetween1And999ForNonKyc": {
+    "description": "Error for amount limits for non-KYC users"
+  },
+  "amountExceedsLimitForKycUsers": "Amount exceeds the limit of 100,000,000 for KYC users",
+  "@amountExceedsLimitForKycUsers": {
+    "description": "Error for amount exceeding KYC user limits"
+  },
+  "amountMustBeGreaterThan1ForKyc": "Amount must be greater than 1 for KYC users",
+  "@amountMustBeGreaterThan1ForKyc": {
+    "description": "Error for minimum amount for KYC users"
+  },
+  "amountExceedsLimitForBannedUsers": "Amount exceeds the limit, can't be more than 999 LAK for banned users",
+  "@amountExceedsLimitForBannedUsers": {
+    "description": "Error for amount limits for banned users"
+  },
+  "affiliatePercentMustBeBetween0And90": "Affiliate percent must be between 0 and 90",
+  "@affiliatePercentMustBeBetween0And90": {
+    "description": "Error for invalid affiliate percentage"
+  },
+  "amountMustBeGreaterThanAffiliateAmount": "Amount must be greater than affiliate data amount",
+  "@amountMustBeGreaterThanAffiliateAmount": {
+    "description": "Error when amount is less than affiliate amount"
+  },
+  "userNotFound": "User not found",
+  "@userNotFound": {
+    "description": "Error when user doesn't exist"
+  },
+  "rateLimitExceeded": "Rate limit exceeded. Max 20 transactions/day allowed",
+  "@rateLimitExceeded": {
+    "description": "Error for daily transaction limit exceeded"
+  },
+  "internalServerError": "Internal server error",
+  "@internalServerError": {
+    "description": "Internal server error message"
+  },
+  "paymentNotFound": "Payment is not found",
+  "@paymentNotFound": {
+    "description": "Error when payment record is not found"
+  },
+  "descriptionMustNotContainLaoOrThaiText": "Description must not contain Lao or Thai text",
+  "@descriptionMustNotContainLaoOrThaiText": {
+    "description": "Error for invalid characters in description"
+  },
+  "transactionIsExpired": "Transaction is expired",
+  "@transactionIsExpired": {
+    "description": "Error when transaction has expired"
+  },
+  "jdbErrorNotSuccess": "JDB error not success",
+  "@jdbErrorNotSuccess": {
+    "description": "JDB bank specific error"
+  },
+  "failedToGenerateQrData": "Failed to generate QR data",
+  "@failedToGenerateQrData": {
+    "description": "Error when QR code generation fails"
+  },
+  "descriptionMustNotContainDashCharacter": "Description must not contain '-' character",
+  "@descriptionMustNotContainDashCharacter": {
+    "description": "Error for dash character in description"
+  },
+  "descriptionMustNotExceed25Characters": "Description must not exceed 25 characters",
+  "@descriptionMustNotExceed25Characters": {
+    "description": "Error for description length limit"
+  },
+  "creditCardPaymentNotAllowedForNonKyc": "Credit card payment is not allowed for non kyc user",
+  "@creditCardPaymentNotAllowedForNonKyc": {
+    "description": "Error for credit card payment restriction"
+  },
+  "exchangeNotFound": "Exchange not found",
+  "@exchangeNotFound": {
+    "description": "Error when exchange rate is not found"
+  },
+  "amountNotFound": "Amount not found",
+  "@amountNotFound": {
+    "description": "Error when amount data is missing"
+  },
+  "callbackSettingNotFound": "Callback setting not found",
+  "@callbackSettingNotFound": {
+    "description": "Error when callback configuration is missing"
+  }
+}

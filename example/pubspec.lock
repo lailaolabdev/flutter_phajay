@@ -190,13 +190,18 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.0.0"
+  flutter_localizations:
+    dependency: transitive
+    description: flutter
+    source: sdk
+    version: "0.0.0"
   flutter_phajay:
     dependency: "direct main"
     description:
       path: ".."
       relative: true
     source: path
-    version: "0.0.17"
+    version: "0.0.18"
   flutter_test:
     dependency: "direct dev"
     description: flutter

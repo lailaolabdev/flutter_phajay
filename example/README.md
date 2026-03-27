@@ -129,6 +129,7 @@ Place this inside the top-level `<dict>` of `ios/Runner/Info.plist`:
 <array>
   <string>jdbbank</string>
   <string>onepay</string>
+  <string>trustpay</string>
 </array>
 ```
 
