@@ -1,3 +1,7 @@
+## 0.0.20
+
+* Remove debug print statements from `BankTile` and `QRPaymentScreen`.
+
 ## 0.0.19
 
 * **Dynamic bank URL from API:** `QRPaymentScreen` now accepts an optional `bankUrl` parameter; when provided, it is used directly for QR generation instead of the hardcoded endpoint mapping.

@@ -222,7 +222,6 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
       setState(() {
         isLoading = true;
       });
-      print("test1");
 
       final response = await http.post(
         Uri.parse(bankUrl),
@@ -233,7 +232,6 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
       setState(() {
         isLoading = false;
       });
-      print("test2: ${response.statusCode}");
 
       if (response.statusCode == 200) {
         print("QR code generated successfully: ${response.body}");

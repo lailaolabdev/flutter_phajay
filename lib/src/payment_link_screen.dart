@@ -1140,7 +1140,6 @@ class BankTile extends StatelessWidget {
     // Use logoUrl if provided, otherwise use the legacy logo mapping
     Widget logoWidget;
 
-    print("logoUrl: $logoUrl");
     if (logoUrl != null && logoUrl!.isNotEmpty) {
       // Use network image for API-provided logos
       logoWidget = Image.network(
@@ -1149,7 +1148,6 @@ class BankTile extends StatelessWidget {
         height: 40,
         fit: BoxFit.contain,
         errorBuilder: (context, error, stackTrace) {
-          print("Error loading logo: $error");
           // Fallback to legacy logo mapping if network image fails
           return Image.asset(
             _getLegacyLogoPath(),
