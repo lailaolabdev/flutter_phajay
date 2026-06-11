@@ -26,8 +26,8 @@ class PhajayConfig {
   static String get creditCardPayment => '$_baseUrl/v1/api/jdb2c2p/payment/credit-card/with-ui';
   static String get wechatAlipayPayment => '$_baseUrl/v1/api/wechat-alipay/payment-link/wechat-alipay';
   static String get qrPaymentGenerate => '$_baseUrl/v1/api/qr-payment/qr';
-  static String get uploadsPath => '$_baseUrl/uploads';
-  
+  static String get uploadsPath => '$_baseUrl/v1/api/file/get-files';
+
   /// Bank-specific QR endpoints
   static String get generateJdbQr => '$_baseUrl/v1/api/link/generate-jdb-qr';
   static String get generateBcelQr => '$_baseUrl/v1/api/link/generate-bcel-qr';

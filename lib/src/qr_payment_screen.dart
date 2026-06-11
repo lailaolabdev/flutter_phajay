@@ -20,6 +20,7 @@ class QRPaymentScreen extends StatefulWidget {
   final String publicKey;
   final String bankName;
   final String? linkCode;
+  final String? bankUrl;
   final Function() onPaymentSuccess;
   final Function(String error) onPaymentError;
 
@@ -30,6 +31,7 @@ class QRPaymentScreen extends StatefulWidget {
     required this.publicKey,
     required this.bankName,
     this.linkCode,
+    this.bankUrl,
     required this.onPaymentSuccess,
     required this.onPaymentError,
   });
@@ -195,8 +197,9 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
       print(widget.bankName);
       String bankUrl;
 
-      // Map payment methods to API endpoints according to web logic
-      if (widget.bankName == "JDB" ||
+      if (widget.bankUrl != null && widget.bankUrl!.isNotEmpty) {
+        bankUrl = widget.bankUrl!;
+      } else if (widget.bankName == "JDB" ||
           widget.bankName == "PromtPay" ||
           widget.bankName == "Lao QR" ||
           widget.bankName == "Thai QR" ||
@@ -214,7 +217,6 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
       } else if (widget.bankName == "STB") {
         bankUrl = PhajayConfig.generateStbQr;
       } else {
-        // Default fallback to JDB endpoint
         bankUrl = PhajayConfig.generateJdbQr;
       }
       setState(() {

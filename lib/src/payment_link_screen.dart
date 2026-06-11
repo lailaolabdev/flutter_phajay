@@ -744,6 +744,7 @@ class _PaymentLinkScreenState extends State<PaymentLinkScreen>
             publicKey: widget.publicKey,
             logoUrl: method['logo'],
             linkCode: linkCode,
+            methodUrl: method['url'] as String?,
             serviceCharge: method['serviceCharge'], // เพิ่ม serviceCharge
             onCreditCardPayment: _handleCreditCardPayment,
             onWechatAlipayPayment: _handleWechatAlipayPayment,
@@ -1026,6 +1027,7 @@ class BankTile extends StatelessWidget {
   final String bankName;
   final String? logoUrl;
   final String? linkCode;
+  final String? methodUrl;
   final Map<String, dynamic>? serviceCharge; // เพิ่ม serviceCharge
   final Function(String)? onCreditCardPayment;
   final Function(String)? onWechatAlipayPayment;
@@ -1041,6 +1043,7 @@ class BankTile extends StatelessWidget {
     required this.subtitle,
     this.logoUrl,
     this.linkCode,
+    this.methodUrl,
     this.serviceCharge, // เพิ่ม serviceCharge parameter
     this.onCreditCardPayment,
     this.onWechatAlipayPayment,
@@ -1137,6 +1140,7 @@ class BankTile extends StatelessWidget {
     // Use logoUrl if provided, otherwise use the legacy logo mapping
     Widget logoWidget;
 
+    print("logoUrl: $logoUrl");
     if (logoUrl != null && logoUrl!.isNotEmpty) {
       // Use network image for API-provided logos
       logoWidget = Image.network(
@@ -1145,6 +1149,7 @@ class BankTile extends StatelessWidget {
         height: 40,
         fit: BoxFit.contain,
         errorBuilder: (context, error, stackTrace) {
+          print("Error loading logo: $error");
           // Fallback to legacy logo mapping if network image fails
           return Image.asset(
             _getLegacyLogoPath(),
@@ -1252,6 +1257,7 @@ class BankTile extends StatelessWidget {
                   description: description,
                   publicKey: publicKey,
                   linkCode: linkCode,
+                  bankUrl: methodUrl,
                   onPaymentSuccess: onPaymentSuccess,
                   onPaymentError: onPaymentError,
                 ),

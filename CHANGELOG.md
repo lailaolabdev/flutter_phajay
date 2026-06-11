@@ -1,3 +1,8 @@
+## 0.0.19
+
+* **Dynamic bank URL from API:** `QRPaymentScreen` now accepts an optional `bankUrl` parameter; when provided, it is used directly for QR generation instead of the hardcoded endpoint mapping.
+* **Pass method URL through `BankTile`:** Added `methodUrl` field to `BankTile` and wired `method['url']` from `paymentLinkData.paymentGroups.methods` so each payment method uses its own API-configured endpoint.
+
 ## 0.0.18
 
 * **BREAKING:** Modernized localization system with Flutter's standard AppLocalizations
