@@ -1,3 +1,10 @@
+## 0.0.21
+
+* **Save QR to gallery:** `QRPaymentScreen` now supports saving the payment QR code to the device's photo gallery via the new "Save QR" button, powered by the `gal` package.
+* **Branded export card:** the saved image is a designed card (PhaJay logo, amount, description, QR code, and bank name) rather than a bare QR code, so it stands on its own once shared or saved.
+* Added required Android (`WRITE_EXTERNAL_STORAGE`) and iOS (`NSPhotoLibraryAddUsageDescription` / `NSPhotoLibraryUsageDescription`) permissions, documented in the README's Platform Configuration section.
+* Bumped the example app's macOS deployment target to 11.0 for compatibility with `gal`.
+
 ## 0.0.20
 
 * Remove debug print statements from `BankTile` and `QRPaymentScreen`.
