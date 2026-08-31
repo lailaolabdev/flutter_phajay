@@ -116,6 +116,15 @@ class AppLocalizationsLo extends AppLocalizations {
   String get saveQR => 'ບັນທຶກ QR';
 
   @override
+  String get qrSavedSuccess => 'ບັນທຶກ QR ໃສ່ຄັງຮູບແລ້ວ';
+
+  @override
+  String get qrSaveFailed => 'ບັນທຶກ QR ບໍ່ສຳເລັດ';
+
+  @override
+  String get photoPermissionDenied => 'ບໍ່ໄດ້ຮັບອະນຸຍາດເຂົ້າເຖິງຄັງຮູບ';
+
+  @override
   String get note =>
       'ໝາຍເຫດ :\nບາງຄັ້ງການໂອນເງິນລະຫວ່າງທະນາຄານອາດຈະບໍ່ສາມາດໃຊ້ໄດ້';
 

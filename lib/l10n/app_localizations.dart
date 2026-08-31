@@ -302,6 +302,24 @@ abstract class AppLocalizations {
   /// **'Save QR'**
   String get saveQR;
 
+  /// Success message after saving QR code to device gallery
+  ///
+  /// In en, this message translates to:
+  /// **'QR code saved to gallery'**
+  String get qrSavedSuccess;
+
+  /// Error message when saving QR code to device gallery fails
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to save QR code'**
+  String get qrSaveFailed;
+
+  /// Error message when photo library permission is denied
+  ///
+  /// In en, this message translates to:
+  /// **'Photo library access denied'**
+  String get photoPermissionDenied;
+
   /// Note about cross-bank transfers
   ///
   /// In en, this message translates to:

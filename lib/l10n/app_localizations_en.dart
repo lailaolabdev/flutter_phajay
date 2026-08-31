@@ -116,6 +116,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get saveQR => 'Save QR';
 
   @override
+  String get qrSavedSuccess => 'QR code saved to gallery';
+
+  @override
+  String get qrSaveFailed => 'Failed to save QR code';
+
+  @override
+  String get photoPermissionDenied => 'Photo library access denied';
+
+  @override
   String get note => 'Note :\nTransfer not available for cross-bank sometimes';
 
   @override

@@ -134,6 +134,23 @@ Add comprehensive banking app support in your `android/app/src/main/AndroidManif
 </manifest>
 ```
 
+#### 4. Save QR to Gallery (Required for the "Save QR" button)
+
+The QR payment screen lets users save the payment QR code to their photo gallery. Add the following to your `android/app/src/main/AndroidManifest.xml`:
+
+```xml
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Required for saving QR code on API <= 29 -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+                 android:maxSdkVersion="29" />
+
+    <application
+        android:requestLegacyExternalStorage="true">
+        <!-- Your app configuration -->
+    </application>
+</manifest>
+```
+
 ### iOS Configuration
 
 #### 1. Deep Link Configuration (Required for Payment Callbacks)
@@ -183,6 +200,21 @@ If you're connecting to HTTP endpoints (not recommended for production), add the
 ```
 
 **Note**: For production apps, always use HTTPS endpoints and remove the NSAppTransportSecurity configuration.
+
+#### 3. Save QR to Gallery (Required for the "Save QR" button)
+
+Add the following to your `ios/Runner/Info.plist` file:
+
+```xml
+<dict>
+    <!-- Existing configurations -->
+
+    <key>NSPhotoLibraryAddUsageDescription</key>
+    <string>This app needs access to save the payment QR code to your photo library.</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>This app needs access to save the payment QR code to your photo library.</string>
+</dict>
+```
 
 ---
 

@@ -141,6 +141,18 @@
   "@saveQR": {
     "description": "Save QR button text"
   },
+  "qrSavedSuccess": "QR code saved to gallery",
+  "@qrSavedSuccess": {
+    "description": "Success message after saving QR code to device gallery"
+  },
+  "qrSaveFailed": "Failed to save QR code",
+  "@qrSaveFailed": {
+    "description": "Error message when saving QR code to device gallery fails"
+  },
+  "photoPermissionDenied": "Photo library access denied",
+  "@photoPermissionDenied": {
+    "description": "Error message when photo library permission is denied"
+  },
   "note": "Note :\nTransfer not available for cross-bank sometimes",
   "@note": {
     "description": "Note about cross-bank transfers"

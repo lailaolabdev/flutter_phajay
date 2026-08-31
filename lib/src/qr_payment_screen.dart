@@ -1,12 +1,16 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:typed_data';
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_phajay/src/helper.dart';
 import 'package:flutter_phajay/src/payment_state.dart';
 import 'package:flutter_phajay/src/config.dart';
 import 'package:flutter_phajay/src/theme.dart';
 import 'package:flutter_phajay/l10n/app_localizations.dart';
+import 'package:gal/gal.dart';
 import 'package:http/http.dart' as http;
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
@@ -44,7 +48,10 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
   String? qrData; // will hold the QR string from API
   String? linkData; // will hold the QR string from API
   bool isLoading = true;
+  bool isSavingQr = false;
   String? error;
+
+  final GlobalKey _qrExportBoundaryKey = GlobalKey();
 
   // Service charge data
   Map<String, dynamic>? serviceChargeData;
@@ -56,9 +63,9 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
   // Helper method to format error message from API response
   String _formatErrorMessage(String message) {
     if (!mounted) return message;
-    
+
     final localizations = AppLocalizations.of(context)!;
-    
+
     // Check for exact matches with localization keys
     switch (message.toLowerCase()) {
       case 'orderno is required as string':
@@ -127,7 +134,11 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
           return message
               .toLowerCase()
               .split('_')
-              .map((word) => word.isEmpty ? '' : word[0].toUpperCase() + word.substring(1))
+              .map(
+                (word) => word.isEmpty
+                    ? ''
+                    : word[0].toUpperCase() + word.substring(1),
+              )
               .join(' ');
         }
         return message;
@@ -139,26 +150,25 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
     try {
       final Map<String, dynamic> responseData = jsonDecode(response.body);
       String? errorMessage;
-      
+
       // Priority: detail > message > HTTP status
-      if (responseData.containsKey('detail') && 
-          responseData['detail'] != null && 
+      if (responseData.containsKey('detail') &&
+          responseData['detail'] != null &&
           responseData['detail'].toString().isNotEmpty) {
         errorMessage = responseData['detail'].toString();
-      }
-      else if (responseData.containsKey('message') && 
-          responseData['message'] != null && 
+      } else if (responseData.containsKey('message') &&
+          responseData['message'] != null &&
           responseData['message'].toString().isNotEmpty) {
         errorMessage = responseData['message'].toString();
       }
-      
+
       if (errorMessage != null) {
         return _formatErrorMessage(errorMessage);
       }
     } catch (e) {
       // JSON parsing failed, return default HTTP error
     }
-    
+
     // Default HTTP error message
     return response.reasonPhrase ?? 'Unknown error';
   }
@@ -242,7 +252,9 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
           setState(() {
             serviceChargeData = data['serviceCharge'];
             // ใช้ totalAmount แทน amount เดิม เมื่อมี serviceCharge
-            displayAmount = (serviceChargeData!['totalAmount'] as num?)?.toInt() ?? widget.amount;
+            displayAmount =
+                (serviceChargeData!['totalAmount'] as num?)?.toInt() ??
+                widget.amount;
           });
         }
 
@@ -253,7 +265,9 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
           linkData = data['link'];
         });
       } else {
-        print("Failed to generate QR code: ${response.statusCode} - ${response.body}");
+        print(
+          "Failed to generate QR code: ${response.statusCode} - ${response.body}",
+        );
         final errorMessage = _extractErrorMessage(response);
         setState(() {
           error = errorMessage;
@@ -262,7 +276,10 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(errorMessage, style: PhajayTheme.bodyText.copyWith(color: Colors.white)),
+              content: Text(
+                errorMessage,
+                style: PhajayTheme.bodyText.copyWith(color: Colors.white),
+              ),
               backgroundColor: Colors.red,
             ),
           );
@@ -279,7 +296,10 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${AppLocalizations.of(context)!.error}: $errorMessage', style: PhajayTheme.bodyText.copyWith(color: Colors.white)),
+            content: Text(
+              '${AppLocalizations.of(context)!.error}: $errorMessage',
+              style: PhajayTheme.bodyText.copyWith(color: Colors.white),
+            ),
             backgroundColor: Colors.red,
           ),
         );
@@ -326,6 +346,132 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
     socket.onError((error) => print('Socket error: $error'));
   }
 
+  String _resolveBankLogoPath() {
+    switch (widget.bankName) {
+      case "JDB":
+        return 'packages/flutter_phajay/assets/jdb.png';
+      case "BCEL":
+        return 'packages/flutter_phajay/assets/bcel.png';
+      case "LDB":
+        return 'packages/flutter_phajay/assets/ldb.png';
+      case "STB":
+        return 'packages/flutter_phajay/assets/stb-logo.png';
+      case "INDOCHINA BANK":
+      case "Indochina Bank":
+        return 'packages/flutter_phajay/assets/indochina.png';
+      case "PromtPay":
+        return 'packages/flutter_phajay/assets/PromptPay-logo.png';
+      case "Lao QR":
+        return 'packages/flutter_phajay/assets/lao_qr.png';
+      case "Thai QR":
+        return 'packages/flutter_phajay/assets/thai_qr.png';
+      case "UnionPay":
+        return 'packages/flutter_phajay/assets/UnionPay-logo.png';
+      case "KHQR":
+        return 'packages/flutter_phajay/assets/khor-qr-logo.jpeg';
+      case "NAPAS":
+        return 'packages/flutter_phajay/assets/napas.png';
+      case "ALIPAY":
+        return 'packages/flutter_phajay/assets/alipay.png';
+      case "WECHATPAY":
+        return 'packages/flutter_phajay/assets/wechatpay.png';
+      default:
+        return 'packages/flutter_phajay/assets/logo_phajay.png';
+    }
+  }
+
+  /// Branded card rendered off-screen and captured as the image that gets
+  /// saved to the device gallery. Kept larger/richer than the compact
+  /// on-screen QR since it has to stand on its own once shared or saved.
+  Widget _buildQrExportCard() {
+    return RepaintBoundary(
+      key: _qrExportBoundaryKey,
+      child: Container(
+        width: 340,
+        padding: const EdgeInsets.fromLTRB(28, 28, 28, 24),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: Colors.grey.shade200, width: 1),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Image.asset(
+              'packages/flutter_phajay/assets/logo_phajay.png',
+              height: 80,
+            ),
+            const SizedBox(height: 20),
+            Container(height: 1, color: Colors.grey.shade200),
+            const SizedBox(height: 20),
+            Text(
+              '${formatThousand(displayAmount)} LAK',
+              style: PhajayTheme.heading1.copyWith(
+                fontSize: 26,
+                color: const Color(0xFF1E3C72),
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              widget.description,
+              textAlign: TextAlign.center,
+              style: PhajayTheme.bodyTextSmall.copyWith(color: Colors.black54),
+            ),
+            const SizedBox(height: 20),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.black12),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: (qrData != null && qrData!.isNotEmpty)
+                  ? QrImageView(
+                      data: qrData!,
+                      version: QrVersions.auto,
+                      size: 220.0,
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.grey.shade800,
+                    )
+                  : const SizedBox(width: 220, height: 220),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Image.asset(_resolveBankLogoPath(), height: 22),
+                const SizedBox(width: 8),
+                Text(
+                  widget.bankName,
+                  style: PhajayTheme.bodyTextSmall.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.verified_rounded,
+                  size: 14,
+                  color: Colors.grey.shade400,
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  'Secured by PhaJay',
+                  style: PhajayTheme.caption.copyWith(
+                    color: Colors.grey.shade500,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   void openDeepLink(link) async {
     final url = Uri.parse(link);
 
@@ -339,39 +485,85 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
     }
   }
 
+  Future<void> _saveQrCode() async {
+    if (isSavingQr) return;
+    setState(() {
+      isSavingQr = true;
+    });
+
+    try {
+      final boundary =
+          _qrExportBoundaryKey.currentContext?.findRenderObject()
+              as RenderRepaintBoundary?;
+      if (boundary == null) {
+        throw Exception('QR code not ready');
+      }
+
+      final ui.Image image = await boundary.toImage(pixelRatio: 3.0);
+      final ByteData? byteData = await image.toByteData(
+        format: ui.ImageByteFormat.png,
+      );
+      if (byteData == null) {
+        throw Exception('Failed to encode QR code image');
+      }
+      final Uint8List pngBytes = byteData.buffer.asUint8List();
+
+      final hasAccess = await Gal.hasAccess(toAlbum: true);
+      if (!hasAccess) {
+        final granted = await Gal.requestAccess(toAlbum: true);
+        if (!granted) {
+          throw StateError('PHOTO_PERMISSION_DENIED');
+        }
+      }
+
+      await Gal.putImageBytes(
+        pngBytes,
+        name: 'phajay_qr_${DateTime.now().millisecondsSinceEpoch}',
+        album: 'Phajay',
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(context)!.qrSavedSuccess,
+              style: PhajayTheme.bodyText.copyWith(color: Colors.white),
+            ),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      print('Error saving QR code: $e');
+      if (mounted) {
+        final isPermissionDenied =
+            e is GalException && e.type == GalExceptionType.accessDenied ||
+            (e is StateError && e.message == 'PHOTO_PERMISSION_DENIED');
+        final message = isPermissionDenied
+            ? AppLocalizations.of(context)!.photoPermissionDenied
+            : AppLocalizations.of(context)!.qrSaveFailed;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              message,
+              style: PhajayTheme.bodyText.copyWith(color: Colors.white),
+            ),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          isSavingQr = false;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    String logoPath = 'packages/flutter_phajay/assets/logo_phajay.png';
-    if (widget.bankName == "JDB") {
-      logoPath = 'packages/flutter_phajay/assets/jdb.png';
-    } else if (widget.bankName == "BCEL") {
-      logoPath = 'packages/flutter_phajay/assets/bcel.png';
-    } else if (widget.bankName == "LDB") {
-      logoPath = 'packages/flutter_phajay/assets/ldb.png';
-    } else if (widget.bankName == "STB") {
-      logoPath = 'packages/flutter_phajay/assets/stb-logo.png';
-    } else if (widget.bankName == "INDOCHINA BANK" ||
-        widget.bankName == "Indochina Bank") {
-      logoPath = 'packages/flutter_phajay/assets/indochina.png';
-    } else if (widget.bankName == "PromtPay") {
-      logoPath = 'packages/flutter_phajay/assets/PromptPay-logo.png';
-    } else if (widget.bankName == "Lao QR") {
-      logoPath = 'packages/flutter_phajay/assets/lao_qr.png';
-    } else if (widget.bankName == "Thai QR") {
-      logoPath = 'packages/flutter_phajay/assets/thai_qr.png';
-    } else if (widget.bankName == "UnionPay") {
-      logoPath = 'packages/flutter_phajay/assets/UnionPay-logo.png';
-    } else if (widget.bankName == "KHQR") {
-      logoPath = 'packages/flutter_phajay/assets/khor-qr-logo.jpeg';
-    } else if (widget.bankName == "NAPAS") {
-      logoPath = 'packages/flutter_phajay/assets/napas.png';
-    } else if (widget.bankName == "ALIPAY") {
-      logoPath = 'packages/flutter_phajay/assets/alipay.png';
-    } else if (widget.bankName == "WECHATPAY") {
-      logoPath = 'packages/flutter_phajay/assets/wechatpay.png';
-    } else {
-      logoPath = 'packages/flutter_phajay/assets/logo_phajay.png';
-    }
+    final String logoPath = _resolveBankLogoPath();
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -397,123 +589,140 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
           ],
         ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            if (isLoading) ...[
-              Lottie.asset(
-                'packages/flutter_phajay/assets/loading_animation.json',
-                width: 60,
-                height: 60,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                AppLocalizations.of(context)!.generatingPaymentLink,
-                style: PhajayTheme.bodyText.copyWith(color: Colors.grey),
-              ),
-            ] else ...[
-              Text(
-                '${formatThousand(displayAmount)} LAK',
-                style: PhajayTheme.heading1.copyWith(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
-              ),
-            ],
-            const SizedBox(height: 8),
-            Text(
-              AppLocalizations.of(context)!.description,
-              style: PhajayTheme.bodyTextSmall.copyWith(color: Colors.black54),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              "${widget.description}",
-              textAlign: TextAlign.center,
-              style: const TextStyle(color: Colors.black87, fontSize: 13),
-            ),
-            const SizedBox(height: 20),
-
-            Text(
-              formatTime(duration),
-              style: const TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-                color: Colors.red,
-              ),
-            ),
-            const SizedBox(height: 24),
-
-            // QR and payment section
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.black12),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                children: [
-                  Text(
-                    AppLocalizations.of(context)!.payWithBankApp,
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                if (isLoading) ...[
+                  Lottie.asset(
+                    'packages/flutter_phajay/assets/loading_animation.json',
+                    width: 60,
+                    height: 60,
                   ),
                   const SizedBox(height: 8),
-                  Image.asset(
-                    logoPath, // your bank logo
-                    height: 40,
-                  ),
-                  const SizedBox(height: 16),
                   Text(
-                    AppLocalizations.of(context)!.orScanQR,
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                    AppLocalizations.of(context)!.generatingPaymentLink,
+                    style: PhajayTheme.bodyText.copyWith(color: Colors.grey),
                   ),
-                  const SizedBox(height: 12),
-                  // Replace with actual QR image (use qr_flutter for generated QR)
-                  if (isLoading)
-                    Center(
-                      child: Lottie.asset(
-                        'packages/flutter_phajay/assets/loading_animation.json',
-                        width: 100,
-                        height: 100,
+                ] else ...[
+                  Text(
+                    '${formatThousand(displayAmount)} LAK',
+                    style: PhajayTheme.heading1.copyWith(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 8),
+                Text(
+                  AppLocalizations.of(context)!.description,
+                  style: PhajayTheme.bodyTextSmall.copyWith(
+                    color: Colors.black54,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  "${widget.description}",
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: Colors.black87, fontSize: 13),
+                ),
+                const SizedBox(height: 20),
+
+                Text(
+                  formatTime(duration),
+                  style: const TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.red,
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // QR and payment section
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.black12),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Column(
+                    children: [
+                      Text(
+                        AppLocalizations.of(context)!.payWithBankApp,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
-                    )
-                  else
-                    Container(
-                      width: 200,
-                      height: 200,
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.black12),
-                        borderRadius: BorderRadius.circular(8),
+                      const SizedBox(height: 8),
+                      Image.asset(
+                        logoPath, // your bank logo
+                        height: 40,
                       ),
-                      child: Center(
-                        child: isLoading
-                            ? Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Lottie.asset(
-                                    'packages/flutter_phajay/assets/loading_animation.json',
-                                    width: 80,
-                                    height: 80,
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    AppLocalizations.of(context)!.generatingQR,
-                                    style: PhajayTheme.caption.copyWith(
-                                      color: Colors.grey,
+                      const SizedBox(height: 16),
+                      Text(
+                        AppLocalizations.of(context)!.orScanQR,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      // Replace with actual QR image (use qr_flutter for generated QR)
+                      if (isLoading)
+                        Center(
+                          child: Lottie.asset(
+                            'packages/flutter_phajay/assets/loading_animation.json',
+                            width: 100,
+                            height: 100,
+                          ),
+                        )
+                      else
+                        Container(
+                          width: 200,
+                          height: 200,
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.black12),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Center(
+                            child: isLoading
+                                ? Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Lottie.asset(
+                                        'packages/flutter_phajay/assets/loading_animation.json',
+                                        width: 80,
+                                        height: 80,
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.generatingQR,
+                                        style: PhajayTheme.caption.copyWith(
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                                : (qrData != null && qrData!.isNotEmpty)
+                                ? Container(
+                                    color: Colors.white,
+                                    padding: const EdgeInsets.all(8),
+                                    child: QrImageView(
+                                      data: qrData!,
+                                      version: QrVersions.auto,
+                                      size: 200.0,
+                                      backgroundColor: Colors.white,
+                                      foregroundColor: Colors
+                                          .grey
+                                          .shade800, // Set to a darker grey
                                     ),
-                                  ),
-                                ],
-                              )
-                            : (qrData != null && qrData!.isNotEmpty)
-                                ? QrImageView(
-                                    data: qrData!,
-                                    version: QrVersions.auto,
-                                    size: 200.0,
-                                    foregroundColor: Colors
-                                        .grey
-                                        .shade800, // Set to a darker grey
                                   )
                                 : Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
@@ -525,10 +734,11 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
                                       ),
                                       const SizedBox(height: 12),
                                       Text(
-                                        AppLocalizations.of(context)!.qrCodeNotGenerated,
-                                        style: PhajayTheme.bodyTextSmall.copyWith(
-                                          color: Colors.red,
-                                        ),
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.qrCodeNotGenerated,
+                                        style: PhajayTheme.bodyTextSmall
+                                            .copyWith(color: Colors.red),
                                         textAlign: TextAlign.center,
                                       ),
                                       const SizedBox(height: 16),
@@ -541,7 +751,11 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
                                           _generateQr();
                                         },
                                         icon: const Icon(Icons.refresh),
-                                        label: Text(AppLocalizations.of(context)!.tryAgain),
+                                        label: Text(
+                                          AppLocalizations.of(
+                                            context,
+                                          )!.tryAgain,
+                                        ),
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor: Colors.blue,
                                           foregroundColor: Colors.white,
@@ -550,78 +764,105 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
                                             vertical: 8,
                                           ),
                                           shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(6),
+                                            borderRadius: BorderRadius.circular(
+                                              6,
+                                            ),
                                           ),
                                         ),
                                       ),
                                     ],
                                   ),
-                      ),
-                    ),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      icon: const Icon(Icons.send_to_mobile_rounded),
-                      label: Text(AppLocalizations.of(context)!.openBankApp),
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        backgroundColor: const Color(0xFF1E3C72),
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      const SizedBox(height: 16),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          icon: const Icon(Icons.send_to_mobile_rounded),
+                          label: Text(
+                            AppLocalizations.of(context)!.openBankApp,
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            backgroundColor: const Color(0xFF1E3C72),
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          onPressed:
+                              (isLoading ||
+                                  linkData == null ||
+                                  linkData!.isEmpty)
+                              ? null
+                              : () => openDeepLink(linkData),
                         ),
                       ),
-                      onPressed: (isLoading || linkData == null || linkData!.isEmpty)
-                          ? null
-                          : () => openDeepLink(linkData),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      icon: const Icon(Icons.download),
-                      label: Text(AppLocalizations.of(context)!.saveQR),
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        backgroundColor: const Color(0xFF1E3C72),
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          icon: isSavingQr
+                              ? const SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : const Icon(Icons.download),
+                          label: Text(AppLocalizations.of(context)!.saveQR),
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            backgroundColor: const Color(0xFF1E3C72),
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          onPressed:
+                              (isLoading ||
+                                  isSavingQr ||
+                                  qrData == null ||
+                                  qrData!.isEmpty)
+                              ? null
+                              : _saveQrCode,
                         ),
                       ),
-                      onPressed: (isLoading || qrData == null || qrData!.isEmpty)
-                          ? null
-                          : () {}, // TODO: Save QR logic
-                    ),
+                    ],
                   ),
-                ],
-              ),
-            ),
+                ),
 
-            const SizedBox(height: 24),
+                const SizedBox(height: 24),
 
-            // Note section
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.blue.shade50,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                AppLocalizations.of(context)!.note,
-                style: const TextStyle(color: Colors.black87, fontSize: 14),
-              ),
-            ),
+                // Note section
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.shade50,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    AppLocalizations.of(context)!.note,
+                    style: const TextStyle(color: Colors.black87, fontSize: 14),
+                  ),
+                ),
 
-            const SizedBox(height: 16),
-            Text(
-              AppLocalizations.of(context)!.qrInstructions,
-              style: const TextStyle(color: Colors.black54, fontSize: 13),
+                const SizedBox(height: 16),
+                Text(
+                  AppLocalizations.of(context)!.qrInstructions,
+                  style: const TextStyle(color: Colors.black54, fontSize: 13),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+          // Rendered off-screen purely so it can be captured as the image
+          // saved to the gallery; RepaintBoundary.toImage() rasterizes this
+          // layer directly regardless of it being positioned off-canvas.
+          if (qrData != null && qrData!.isNotEmpty)
+            Positioned(left: -9999, top: 0, child: _buildQrExportCard()),
+        ],
       ),
     );
   }
