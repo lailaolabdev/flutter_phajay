@@ -499,6 +499,45 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
     }
   }
 
+  Future<void> _performQrSave() async {
+    final boundary =
+        _qrExportBoundaryKey.currentContext?.findRenderObject()
+            as RenderRepaintBoundary?;
+    if (boundary == null) {
+      throw Exception('QR code not ready');
+    }
+
+    final ui.Image image = await boundary.toImage(pixelRatio: 3.0);
+    final ByteData? byteData = await image.toByteData(
+      format: ui.ImageByteFormat.png,
+    );
+    if (byteData == null) {
+      throw Exception('Failed to encode QR code image');
+    }
+    final Uint8List pngBytes = byteData.buffer.asUint8List();
+
+    // `gal`'s permission dialogs occasionally never resolve on some
+    // OEM/Android setups (e.g. required manifest permissions missing on the
+    // host app) -- bound each native call so the button can never hang forever.
+    final hasAccess = await Gal.hasAccess(
+      toAlbum: true,
+    ).timeout(const Duration(seconds: 10), onTimeout: () => false);
+    if (!hasAccess) {
+      final granted = await Gal.requestAccess(
+        toAlbum: true,
+      ).timeout(const Duration(seconds: 30), onTimeout: () => false);
+      if (!granted) {
+        throw StateError('PHOTO_PERMISSION_DENIED');
+      }
+    }
+
+    await Gal.putImageBytes(
+      pngBytes,
+      name: 'phajay_qr_${DateTime.now().millisecondsSinceEpoch}',
+      album: 'Phajay',
+    ).timeout(const Duration(seconds: 15));
+  }
+
   Future<void> _saveQrCode() async {
     if (isSavingQr) return;
     setState(() {
@@ -506,35 +545,7 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
     });
 
     try {
-      final boundary =
-          _qrExportBoundaryKey.currentContext?.findRenderObject()
-              as RenderRepaintBoundary?;
-      if (boundary == null) {
-        throw Exception('QR code not ready');
-      }
-
-      final ui.Image image = await boundary.toImage(pixelRatio: 3.0);
-      final ByteData? byteData = await image.toByteData(
-        format: ui.ImageByteFormat.png,
-      );
-      if (byteData == null) {
-        throw Exception('Failed to encode QR code image');
-      }
-      final Uint8List pngBytes = byteData.buffer.asUint8List();
-
-      final hasAccess = await Gal.hasAccess(toAlbum: true);
-      if (!hasAccess) {
-        final granted = await Gal.requestAccess(toAlbum: true);
-        if (!granted) {
-          throw StateError('PHOTO_PERMISSION_DENIED');
-        }
-      }
-
-      await Gal.putImageBytes(
-        pngBytes,
-        name: 'phajay_qr_${DateTime.now().millisecondsSinceEpoch}',
-        album: 'Phajay',
-      );
+      await _performQrSave();
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

@@ -1,3 +1,7 @@
+## 0.0.23
+
+* **Fix:** the "Save QR" button could get stuck spinning forever if the native photo-library permission flow (via `gal`) never returned a result — most commonly because the host app is missing the required Android (`WRITE_EXTERNAL_STORAGE` on API <= 29, `requestLegacyExternalStorage`) or iOS (`NSPhotoLibraryAddUsageDescription` / `NSPhotoLibraryUsageDescription`) configuration documented in the README. Each native call in the save flow is now wrapped with a timeout, so the button always recovers and shows an error instead of hanging indefinitely.
+
 ## 0.0.22
 
 * **Fix:** hardened every `Image.asset` logo call (`PaymentLinkScreen` header, `QRPaymentScreen` bank/PhaJay logos) against a `RenderFlex overflowed` crash that occurred whenever an asset failed to resolve (e.g. a stale asset bundle right after adding/upgrading the package). Each image now has an explicit bounding size and an `errorBuilder` fallback, so a failed image load can no longer blow out the surrounding layout.
