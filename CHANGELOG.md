@@ -1,3 +1,7 @@
+## 0.0.22
+
+* **Fix:** hardened every `Image.asset` logo call (`PaymentLinkScreen` header, `QRPaymentScreen` bank/PhaJay logos) against a `RenderFlex overflowed` crash that occurred whenever an asset failed to resolve (e.g. a stale asset bundle right after adding/upgrading the package). Each image now has an explicit bounding size and an `errorBuilder` fallback, so a failed image load can no longer blow out the surrounding layout.
+
 ## 0.0.21
 
 * **Save QR to gallery:** `QRPaymentScreen` now supports saving the payment QR code to the device's photo gallery via the new "Save QR" button, powered by the `gal` package.

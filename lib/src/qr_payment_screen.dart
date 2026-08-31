@@ -397,9 +397,14 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Image.asset(
-              'packages/flutter_phajay/assets/logo_phajay.png',
+            SizedBox(
               height: 80,
+              child: Image.asset(
+                'packages/flutter_phajay/assets/logo_phajay.png',
+                fit: BoxFit.contain,
+                errorBuilder: (context, error, stackTrace) =>
+                    const SizedBox.shrink(),
+              ),
             ),
             const SizedBox(height: 20),
             Container(height: 1, color: Colors.grey.shade200),
@@ -438,7 +443,16 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Image.asset(_resolveBankLogoPath(), height: 22),
+                SizedBox(
+                  width: 22,
+                  height: 22,
+                  child: Image.asset(
+                    _resolveBankLogoPath(),
+                    fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) =>
+                        const SizedBox.shrink(),
+                  ),
+                ),
                 const SizedBox(width: 8),
                 Text(
                   widget.bankName,
@@ -659,9 +673,14 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      Image.asset(
-                        logoPath, // your bank logo
+                      SizedBox(
                         height: 40,
+                        child: Image.asset(
+                          logoPath, // your bank logo
+                          fit: BoxFit.contain,
+                          errorBuilder: (context, error, stackTrace) =>
+                              const SizedBox.shrink(),
+                        ),
                       ),
                       const SizedBox(height: 16),
                       Text(

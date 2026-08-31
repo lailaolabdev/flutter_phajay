@@ -903,9 +903,15 @@ class _PaymentLinkScreenState extends State<PaymentLinkScreen>
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       // Logo on the left
-                      Image.asset(
-                        'packages/flutter_phajay/assets/logo_phajay.png',
+                      SizedBox(
+                        width: 60,
                         height: 60,
+                        child: Image.asset(
+                          'packages/flutter_phajay/assets/logo_phajay.png',
+                          fit: BoxFit.contain,
+                          errorBuilder: (context, error, stackTrace) =>
+                              const SizedBox.shrink(),
+                        ),
                       ),
                       // Center content
                       Expanded(
