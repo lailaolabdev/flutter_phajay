@@ -264,6 +264,10 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
           qrData = data['qrCode'];
           linkData = data['link'];
         });
+        // Open the bank app automatically as soon as the link is available
+        if (mounted && linkData != null && linkData!.isNotEmpty) {
+          openDeepLink(linkData);
+        }
       } else {
         print(
           "Failed to generate QR code: ${response.statusCode} - ${response.body}",
