@@ -1,3 +1,7 @@
+## 0.0.24
+
+* **Feature:** `QRPaymentScreen` now opens the bank app automatically as soon as the deep link is returned after QR generation, so the user no longer has to tap "Open bank app". The button remains available to re-open the app.
+
 ## 0.0.23
 
 * **Fix:** the "Save QR" button could get stuck spinning forever if the native photo-library permission flow (via `gal`) never returned a result — most commonly because the host app is missing the required Android (`WRITE_EXTERNAL_STORAGE` on API <= 29, `requestLegacyExternalStorage`) or iOS (`NSPhotoLibraryAddUsageDescription` / `NSPhotoLibraryUsageDescription`) configuration documented in the README. Each native call in the save flow is now wrapped with a timeout, so the button always recovers and shows an error instead of hanging indefinitely.
