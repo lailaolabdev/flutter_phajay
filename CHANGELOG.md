@@ -1,3 +1,7 @@
+## 0.0.25
+
+* **Fix:** `PaymentLinkScreen` sometimes showed no payment methods. Failures while fetching the transaction or the payment methods were swallowed silently and the screen stayed blank. Requests now have a 10s timeout, a loading indicator is shown while waiting, and a "Try Again" button appears on failure. Payment methods are fetched once instead of on every status-poll tick, response parsing is null-safe, and `setState` is guarded by `mounted`.
+
 ## 0.0.24
 
 * **Feature:** `QRPaymentScreen` now opens the bank app automatically as soon as the deep link is returned after QR generation, so the user no longer has to tap "Open bank app". The button remains available to re-open the app.

@@ -50,6 +50,9 @@ class _PaymentLinkScreenState extends State<PaymentLinkScreen>
   bool isLoadingCreditCard = false; // เพิ่มตัวแปรสำหรับ credit card loading
   String? errorMessage;
   String? userId;
+  bool isLoadingMethods = false;
+  bool methodsLoadFailed = false;
+  static const _requestTimeout = Duration(seconds: 10);
   
   // Helper method to format error message from API response
   String _formatErrorMessage(String message) {
@@ -212,9 +215,10 @@ class _PaymentLinkScreenState extends State<PaymentLinkScreen>
 
   Future<void> _checkPaymentStatus(String linkCode) async {
     try {
-      final response = await http.get(
-        Uri.parse('${PhajayConfig.getTransaction}/$linkCode'),
-      );
+      final response = await http
+          .get(Uri.parse('${PhajayConfig.getTransaction}/$linkCode'))
+          .timeout(_requestTimeout);
+      if (!mounted) return;
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -242,21 +246,33 @@ class _PaymentLinkScreenState extends State<PaymentLinkScreen>
             widget.onPaymentError(errorMsg);
           } else {
             // Store userId for future use and fetch payment methods
-            setState(() {
-              userId = paymentUserId;
-            });
-            // Fetch payment methods data
-            if (paymentUserId != null) {
-              await _getPaymentLinkData(paymentUserId);
+            // (only while we don't have them yet, so the polling timer
+            // doesn't refetch and race on every tick)
+            if (paymentUserId is String && paymentUserId.isNotEmpty) {
+              setState(() {
+                userId = paymentUserId;
+              });
+              if (paymentLinkData == null) {
+                await _getPaymentLinkData(paymentUserId);
+              }
+            } else if (paymentLinkData == null) {
+              setState(() {
+                methodsLoadFailed = true;
+              });
             }
           }
         }
+      } else if (paymentLinkData == null) {
+        setState(() {
+          methodsLoadFailed = true;
+        });
       }
     } catch (e) {
-      // Handle error silently or use debugPrint in debug mode
-      if (mounted) {
-        // Could potentially show error to user in debug mode
-        // debugPrint('Error checking payment status: $e');
+      debugPrint('Error checking payment status: $e');
+      if (mounted && paymentLinkData == null) {
+        setState(() {
+          methodsLoadFailed = true;
+        });
       }
     }
   }
@@ -287,23 +303,51 @@ class _PaymentLinkScreenState extends State<PaymentLinkScreen>
   }
 
   Future<void> _getPaymentLinkData(String userId) async {
+    if (isLoadingMethods) return;
+    if (mounted) {
+      setState(() {
+        isLoadingMethods = true;
+        methodsLoadFailed = false;
+      });
+    }
+
+    var success = false;
     try {
-      final response = await http.get(
-        Uri.parse('${PhajayConfig.getPaymentMethods}/$userId'),
-      );
+      final response = await http
+          .get(Uri.parse('${PhajayConfig.getPaymentMethods}/$userId'))
+          .timeout(_requestTimeout);
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        if (data['message'] == 'SUCCESSFULLY' && data['data'] != null) {
+        if (data is Map &&
+            data['message'] == 'SUCCESSFULLY' &&
+            data['data'] is Map<String, dynamic>) {
+          if (!mounted) return;
           setState(() {
-            paymentLinkData = data['data'];
+            paymentLinkData = data['data'] as Map<String, dynamic>;
           });
+          success = true;
         }
       }
     } catch (e) {
-      // Handle error silently or use debugPrint in debug mode
-      // debugPrint('Error fetching payment link data: $e');
+      debugPrint('Error fetching payment link data: $e');
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoadingMethods = false;
+          methodsLoadFailed = !success;
+        });
+      }
     }
+  }
+
+  Future<void> _retryLoadPaymentMethods() async {
+    final code = linkCode;
+    if (code == null) return;
+    setState(() {
+      methodsLoadFailed = false;
+    });
+    await _checkPaymentStatus(code);
   }
 
   void _initAppLinks() async {
@@ -666,42 +710,71 @@ class _PaymentLinkScreenState extends State<PaymentLinkScreen>
     );
   }  Widget _buildPaymentMethods() {
     if (paymentLinkData == null) {
+      if (methodsLoadFailed && !isLoadingMethods) {
+        return Column(
+          children: [
+            const Icon(Icons.wifi_off_rounded, size: 40, color: Colors.grey),
+            const SizedBox(height: 12),
+            OutlinedButton.icon(
+              onPressed: _retryLoadPaymentMethods,
+              icon: const Icon(Icons.refresh),
+              label: Text(AppLocalizations.of(context)!.tryAgain),
+            ),
+          ],
+        );
+      }
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 24),
+        child: Lottie.asset(
+          'packages/flutter_phajay/assets/loading_animation.json',
+          width: 80,
+          height: 80,
+        ),
+      );
+    }
+
+    final rawGroups = paymentLinkData!['paymentGroups'];
+    if (rawGroups is! List || rawGroups.isEmpty) {
       return const SizedBox.shrink();
     }
 
-    final paymentGroups = paymentLinkData!['paymentGroups'] as List<dynamic>?;
-    if (paymentGroups == null || paymentGroups.isEmpty) {
-      return const SizedBox.shrink();
-    }
-
-    // Sort groups by order
-    paymentGroups.sort((a, b) => (a['order'] ?? 0).compareTo(b['order'] ?? 0));
+    // Copy before sorting so we don't mutate API data during build
+    final paymentGroups =
+        rawGroups.whereType<Map<String, dynamic>>().toList()
+          ..sort((a, b) => ((a['order'] ?? 0) as num).compareTo(
+            (b['order'] ?? 0) as num,
+          ));
 
     return Column(
       children: paymentGroups
-          .where((group) => group['visible'] == true)
+          .where((group) => group['visible'] != false)
           .map((group) => _buildPaymentGroup(group))
           .toList(),
     );
   }
 
   Widget _buildPaymentGroup(Map<String, dynamic> group) {
-    final groupName = group['name'] as String;
-    final methods = group['methods'] as List<dynamic>?;
+    final groupName = group['name']?.toString() ?? '';
+    final methods = group['methods'];
 
-    if (methods == null || methods.isEmpty) {
+    if (methods is! List || methods.isEmpty) {
       return const SizedBox.shrink();
     }
 
     // Filter and sort methods
     final visibleMethods = methods
-        .where((method) => method['visible'] == true)
+        .whereType<Map<String, dynamic>>()
+        .where((method) => method['visible'] != false)
+        .where((method) => method['key'] != null)
         .where(
-          (method) => !_isWechatAlipayMethod(method['key']),
+          (method) => !_isWechatAlipayMethod(method['key'].toString()),
         ) // Hide WeChat/Alipay methods
         .toList();
 
-    visibleMethods.sort((a, b) => (a['order'] ?? 0).compareTo(b['order'] ?? 0));
+    visibleMethods.sort(
+      (a, b) =>
+          ((a['order'] ?? 0) as num).compareTo((b['order'] ?? 0) as num),
+    );
 
     if (visibleMethods.isEmpty) {
       return const SizedBox.shrink();
@@ -737,15 +810,17 @@ class _PaymentLinkScreenState extends State<PaymentLinkScreen>
         const SizedBox(height: 16),
         ...visibleMethods.map(
           (method) => BankTile(
-            bankName: method['key'],
+            bankName: method['key'].toString(),
             amount: widget.amount,
-            subtitle: method['description'],
+            subtitle: method['description']?.toString() ?? '',
             description: widget.description,
             publicKey: widget.publicKey,
-            logoUrl: method['logo'],
+            logoUrl: method['logo']?.toString(),
             linkCode: linkCode,
             methodUrl: method['url'] as String?,
-            serviceCharge: method['serviceCharge'], // เพิ่ม serviceCharge
+            serviceCharge: method['serviceCharge'] is Map<String, dynamic>
+                ? method['serviceCharge'] as Map<String, dynamic>
+                : null,
             onCreditCardPayment: _handleCreditCardPayment,
             onWechatAlipayPayment: _handleWechatAlipayPayment,
             onPaymentSuccess: widget.onPaymentSuccess,
@@ -828,18 +903,22 @@ class _PaymentLinkScreenState extends State<PaymentLinkScreen>
         }
       }
     } catch (e) {
-      setState(() {
-        errorMessage = 'Error: $e';
-      });
+      if (mounted) {
+        setState(() {
+          errorMessage = 'Error: $e';
+        });
+      }
       // Push back when payment link generation fails
       if (mounted) {
         // Navigator.of(context).pop();
         widget.onPaymentError('Error: $e');
       }
     } finally {
-      setState(() {
-        isLoadingPaymentLink = false;
-      });
+      if (mounted) {
+        setState(() {
+          isLoadingPaymentLink = false;
+        });
+      }
     }
   }
 
