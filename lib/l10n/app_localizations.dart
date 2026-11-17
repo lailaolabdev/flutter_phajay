@@ -275,7 +275,7 @@ abstract class AppLocalizations {
   /// Text for QR scan option
   ///
   /// In en, this message translates to:
-  /// **'Or Scan QR'**
+  /// **'Scan QR'**
   String get orScanQR;
 
   /// Loading message while generating QR

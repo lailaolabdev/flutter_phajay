@@ -999,7 +999,9 @@ class _PaymentLinkScreenState extends State<PaymentLinkScreen>
                         width: 60,
                         height: 60,
                         child: Image.asset(
-                          'packages/flutter_phajay/assets/logo_phajay.png',
+                          Theme.of(context).brightness == Brightness.dark
+                              ? 'packages/flutter_phajay/assets/logo-phajay.png'
+                              : 'packages/flutter_phajay/assets/logo_phajay.png',
                           fit: BoxFit.contain,
                           errorBuilder: (context, error, stackTrace) =>
                               const SizedBox.shrink(),
