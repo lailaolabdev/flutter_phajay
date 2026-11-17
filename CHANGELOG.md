@@ -1,3 +1,10 @@
+## 0.0.26
+
+* **Feature:** dark mode support. `PaymentLinkScreen`, `QRPaymentScreen` and the credit-card WebView screen now follow the host app's `Theme` (scaffold/AppBar backgrounds, text, icons, dividers, note box) instead of hard-coded light colors, and `PaymentLinkScreen` shows `logo-phajay.png` in dark mode. The exported/saved QR card stays light so it remains scannable.
+* **Added:** `PhajayTheme.darkTheme` (Noto Sans Lao) to pair with `PhajayTheme.lightTheme`.
+* **Changed:** `PhajayTheme` text styles no longer hard-code a text color; they inherit it from the theme. Pass an explicit `color` if you relied on the old black87/black54.
+* **Example:** the example app now has a System/Light/Dark theme switcher.
+
 ## 0.0.25
 
 * **Fix:** `PaymentLinkScreen` sometimes showed no payment methods. Failures while fetching the transaction or the payment methods were swallowed silently and the screen stayed blank. Requests now have a 10s timeout, a loading indicator is shown while waiting, and a "Try Again" button appears on failure. Payment methods are fetched once instead of on every status-poll tick, response parsing is null-safe, and `setState` is guarded by `mounted`.
