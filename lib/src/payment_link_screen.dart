@@ -53,13 +53,13 @@ class _PaymentLinkScreenState extends State<PaymentLinkScreen>
   bool isLoadingMethods = false;
   bool methodsLoadFailed = false;
   static const _requestTimeout = Duration(seconds: 10);
-  
+
   // Helper method to format error message from API response
   String _formatErrorMessage(String message) {
     if (!mounted) return message;
-    
+
     final localizations = AppLocalizations.of(context)!;
-    
+
     // Check for exact matches with localization keys
     switch (message.toLowerCase()) {
       case 'orderno is required as string':
@@ -128,33 +128,38 @@ class _PaymentLinkScreenState extends State<PaymentLinkScreen>
           return message
               .toLowerCase()
               .split('_')
-              .map((word) => word.isEmpty ? '' : word[0].toUpperCase() + word.substring(1))
+              .map(
+                (word) => word.isEmpty
+                    ? ''
+                    : word[0].toUpperCase() + word.substring(1),
+              )
               .join(' ');
         }
         return message;
     }
   }
-  
+
   // Helper method to extract error message from API response
   String _extractErrorMessage(http.Response response) {
     try {
       final data = jsonDecode(response.body);
       if (data is Map<String, dynamic>) {
         String? errorMessage;
-        
+
         // Check for detail message first (more specific)
         if (data['detail'] != null && data['detail'].toString().isNotEmpty) {
           errorMessage = data['detail'].toString();
         }
         // Fall back to message field
-        else if (data['message'] != null && data['message'].toString().isNotEmpty) {
+        else if (data['message'] != null &&
+            data['message'].toString().isNotEmpty) {
           errorMessage = data['message'].toString();
         }
         // Check for error field
         else if (data['error'] != null && data['error'].toString().isNotEmpty) {
           errorMessage = data['error'].toString();
         }
-        
+
         if (errorMessage != null) {
           return _formatErrorMessage(errorMessage);
         }
@@ -166,6 +171,7 @@ class _PaymentLinkScreenState extends State<PaymentLinkScreen>
       return response.reasonPhrase ?? 'Unknown error';
     }
   }
+
   String? linkCode;
   String? paymentLinkUrl;
   Timer? _statusCheckTimer;
@@ -417,7 +423,10 @@ class _PaymentLinkScreenState extends State<PaymentLinkScreen>
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(AppLocalizations.of(context)!.paymentLinkNotAvailable, style: PhajayTheme.bodyText.copyWith(color: Colors.white)),
+            content: Text(
+              AppLocalizations.of(context)!.paymentLinkNotAvailable,
+              style: PhajayTheme.bodyText.copyWith(color: Colors.white),
+            ),
             backgroundColor: Colors.red,
           ),
         );
@@ -430,7 +439,10 @@ class _PaymentLinkScreenState extends State<PaymentLinkScreen>
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(AppLocalizations.of(context)!.minimumAmountRequired, style: PhajayTheme.bodyText.copyWith(color: Colors.white)),
+            content: Text(
+              AppLocalizations.of(context)!.minimumAmountRequired,
+              style: PhajayTheme.bodyText.copyWith(color: Colors.white),
+            ),
             backgroundColor: Colors.orange,
           ),
         );
@@ -484,7 +496,9 @@ class _PaymentLinkScreenState extends State<PaymentLinkScreen>
             });
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(AppLocalizations.of(context)!.noPaymentUrlReceived),
+                content: Text(
+                  AppLocalizations.of(context)!.noPaymentUrlReceived,
+                ),
                 backgroundColor: Colors.red,
               ),
             );
@@ -523,7 +537,9 @@ class _PaymentLinkScreenState extends State<PaymentLinkScreen>
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(AppLocalizations.of(context)!.paymentLinkNotAvailable),
+            content: Text(
+              AppLocalizations.of(context)!.paymentLinkNotAvailable,
+            ),
             backgroundColor: Colors.red,
           ),
         );
@@ -536,7 +552,9 @@ class _PaymentLinkScreenState extends State<PaymentLinkScreen>
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(AppLocalizations.of(context)!.processingPayment(bankName)),
+            content: Text(
+              AppLocalizations.of(context)!.processingPayment(bankName),
+            ),
             duration: const Duration(seconds: 2),
           ),
         );
@@ -621,8 +639,8 @@ class _PaymentLinkScreenState extends State<PaymentLinkScreen>
   Widget _buildLanguageDropdown() {
     // Get current language flag
     String getCurrentFlag() {
-      return PhajayLocalizations.currentLanguage == PhajayLanguage.english 
-          ? '🇺🇸' 
+      return PhajayLocalizations.currentLanguage == PhajayLanguage.english
+          ? '🇺🇸'
           : '🇱🇦';
     }
 
@@ -630,7 +648,7 @@ class _PaymentLinkScreenState extends State<PaymentLinkScreen>
       width: 44,
       height: 44,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).scaffoldBackgroundColor,
         shape: BoxShape.circle,
         border: Border.all(color: Colors.grey.shade300, width: 1),
         boxShadow: [
@@ -661,15 +679,12 @@ class _PaymentLinkScreenState extends State<PaymentLinkScreen>
               width: 120, // กำหนดความกว้างของ popup item
               child: Row(
                 children: [
-                  Text(
-                    '🇺🇸',
-                    style: const TextStyle(fontSize: 16),
-                  ),
+                  Text('🇺🇸', style: const TextStyle(fontSize: 16)),
                   const SizedBox(width: 8),
                   Text(
                     'English',
                     style: PhajayTheme.bodyTextSmall.copyWith(
-                      color: Colors.black87,
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -683,15 +698,12 @@ class _PaymentLinkScreenState extends State<PaymentLinkScreen>
               width: 120, // กำหนดความกว้างของ popup item
               child: Row(
                 children: [
-                  Text(
-                    '🇱🇦',
-                    style: const TextStyle(fontSize: 16),
-                  ),
+                  Text('🇱🇦', style: const TextStyle(fontSize: 16)),
                   const SizedBox(width: 8),
                   Text(
                     'ພາສາລາວ',
                     style: PhajayTheme.bodyTextSmall.copyWith(
-                      color: Colors.black87,
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -701,14 +713,14 @@ class _PaymentLinkScreenState extends State<PaymentLinkScreen>
           ),
         ],
         offset: const Offset(0, 44), // ตำแหน่งของ popup menu
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         elevation: 8,
-        color: Colors.white,
+        color: Theme.of(context).scaffoldBackgroundColor,
       ),
     );
-  }  Widget _buildPaymentMethods() {
+  }
+
+  Widget _buildPaymentMethods() {
     if (paymentLinkData == null) {
       if (methodsLoadFailed && !isLoadingMethods) {
         return Column(
@@ -739,11 +751,11 @@ class _PaymentLinkScreenState extends State<PaymentLinkScreen>
     }
 
     // Copy before sorting so we don't mutate API data during build
-    final paymentGroups =
-        rawGroups.whereType<Map<String, dynamic>>().toList()
-          ..sort((a, b) => ((a['order'] ?? 0) as num).compareTo(
-            (b['order'] ?? 0) as num,
-          ));
+    final paymentGroups = rawGroups.whereType<Map<String, dynamic>>().toList()
+      ..sort(
+        (a, b) =>
+            ((a['order'] ?? 0) as num).compareTo((b['order'] ?? 0) as num),
+      );
 
     return Column(
       children: paymentGroups
@@ -772,8 +784,7 @@ class _PaymentLinkScreenState extends State<PaymentLinkScreen>
         .toList();
 
     visibleMethods.sort(
-      (a, b) =>
-          ((a['order'] ?? 0) as num).compareTo((b['order'] ?? 0) as num),
+      (a, b) => ((a['order'] ?? 0) as num).compareTo((b['order'] ?? 0) as num),
     );
 
     if (visibleMethods.isEmpty) {
@@ -934,7 +945,7 @@ class _PaymentLinkScreenState extends State<PaymentLinkScreen>
             builder: (BuildContext context) {
               if (isLoadingPaymentLink) {
                 return Scaffold(
-                  backgroundColor: Colors.white,
+                  backgroundColor: Theme.of(context).scaffoldBackgroundColor,
                   body: Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -945,7 +956,10 @@ class _PaymentLinkScreenState extends State<PaymentLinkScreen>
                           height: 100,
                         ),
                         const SizedBox(height: 16),
-                        Text(AppLocalizations.of(context)!.generatingPaymentLink, style: PhajayTheme.bodyText),
+                        Text(
+                          AppLocalizations.of(context)!.generatingPaymentLink,
+                          style: PhajayTheme.bodyText,
+                        ),
                       ],
                     ),
                   ),
@@ -966,9 +980,8 @@ class _PaymentLinkScreenState extends State<PaymentLinkScreen>
   }
 
   Widget _buildMainContent(BuildContext context) {
-
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Stack(
         children: [
           SafeArea(
@@ -995,7 +1008,7 @@ class _PaymentLinkScreenState extends State<PaymentLinkScreen>
                       // Center content
                       Expanded(
                         child: Text(
-                          AppLocalizations.of(context)!.selectForPayment, 
+                          AppLocalizations.of(context)!.selectForPayment,
                           style: PhajayTheme.heading3,
                           textAlign: TextAlign.center,
                         ),
@@ -1009,7 +1022,7 @@ class _PaymentLinkScreenState extends State<PaymentLinkScreen>
                     AppLocalizations.of(context)!.transactionVerified,
                     textAlign: TextAlign.center,
                     style: PhajayTheme.bodyTextSmall.copyWith(
-                      color: Colors.black87,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -1059,7 +1072,7 @@ class _PaymentLinkScreenState extends State<PaymentLinkScreen>
                     AppLocalizations.of(context)!.safetyMessage,
                     textAlign: TextAlign.center,
                     style: PhajayTheme.bodyTextSmall.copyWith(
-                      color: Colors.black87,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
 
@@ -1076,7 +1089,7 @@ class _PaymentLinkScreenState extends State<PaymentLinkScreen>
           if (isLoadingCreditCard)
             Container(
               // color: Colors.black.withOpacity(0.7),
-              color: Colors.white,
+              color: Theme.of(context).scaffoldBackgroundColor,
               child: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -1090,7 +1103,7 @@ class _PaymentLinkScreenState extends State<PaymentLinkScreen>
                     Text(
                       AppLocalizations.of(context)!.processingCreditCard,
                       style: PhajayTheme.bodyText.copyWith(
-                        color: Colors.black,
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -1188,7 +1201,8 @@ class BankTile extends StatelessWidget {
       final Map<String, String> translations = {
         'ຈ່າຍຜ່ານບັນຊີທະນາຄານ': 'Pay through bank account',
         'ສະແກນຄິວອາໂຄດ໌ເພຶ່ອຈ່າຍ': 'Scan QR code to pay',
-        'ບັດເຄຣດິດ/ເດບິດ (ຕ້ອງເປັນບັດທີ່ຮອງຮັບ 3DS ເທົ່ານັ້ນ)': 'Credit/Debit Card (3DS supported cards only)',
+        'ບັດເຄຣດິດ/ເດບິດ (ຕ້ອງເປັນບັດທີ່ຮອງຮັບ 3DS ເທົ່ານັ້ນ)':
+            'Credit/Debit Card (3DS supported cards only)',
         'ຈ່າຍດ້ວຍບັດເຄຣດິດ': 'Pay with credit card',
         'ຈ່າຍດ້ວຍ QR Code': 'Pay with QR Code',
         'ການຈ່າຍເງິນດ່ວນ': 'Quick payment',
@@ -1254,9 +1268,10 @@ class BankTile extends StatelessWidget {
 
     // Get service charge text if applicable
     final serviceChargeText = _getServiceChargeText(context);
-    
+
     // Check if credit card has minimum amount requirement
-    final isCreditCardWithLowAmount = _isCreditCardPayment(bankName) && amount < 5000;
+    final isCreditCardWithLowAmount =
+        _isCreditCardPayment(bankName) && amount < 5000;
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 6),
@@ -1276,7 +1291,7 @@ class BankTile extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                _translateSubtitle(subtitle), 
+                _translateSubtitle(subtitle),
                 style: PhajayTheme.bodyTextSmall.copyWith(
                   color: isCreditCardWithLowAmount ? Colors.grey : null,
                 ),
@@ -1304,50 +1319,53 @@ class BankTile extends StatelessWidget {
             ],
           ),
           trailing: Icon(
-            Icons.arrow_forward_ios, 
+            Icons.arrow_forward_ios,
             size: 16,
             color: isCreditCardWithLowAmount ? Colors.grey : null,
           ),
-        onTap: () {
-          // Check if this is a credit card payment method
-          if (_isCreditCardPayment(bankName)) {
-            // Check minimum amount for credit card
-            if (amount < 5000) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(AppLocalizations.of(context)!.minimumAmountRequired, style: PhajayTheme.bodyText.copyWith(color: Colors.white)),
-                  backgroundColor: Colors.orange,
+          onTap: () {
+            // Check if this is a credit card payment method
+            if (_isCreditCardPayment(bankName)) {
+              // Check minimum amount for credit card
+              if (amount < 5000) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      AppLocalizations.of(context)!.minimumAmountRequired,
+                      style: PhajayTheme.bodyText.copyWith(color: Colors.white),
+                    ),
+                    backgroundColor: Colors.orange,
+                  ),
+                );
+                return;
+              }
+              if (onCreditCardPayment != null) {
+                onCreditCardPayment!(bankName);
+              }
+            } else if (_isWechatAlipayPayment(bankName)) {
+              // Check if this is a WeChat/Alipay payment method
+              if (onWechatAlipayPayment != null) {
+                onWechatAlipayPayment!(bankName);
+              }
+            } else {
+              // Navigate to QR payment screen for other methods
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => QRPaymentScreen(
+                    bankName: bankName,
+                    amount: amount,
+                    description: description,
+                    publicKey: publicKey,
+                    linkCode: linkCode,
+                    bankUrl: methodUrl,
+                    onPaymentSuccess: onPaymentSuccess,
+                    onPaymentError: onPaymentError,
+                  ),
                 ),
               );
-              return;
             }
-            if (onCreditCardPayment != null) {
-              onCreditCardPayment!(bankName);
-            }
-          } else if (_isWechatAlipayPayment(bankName)) {
-            // Check if this is a WeChat/Alipay payment method
-            if (onWechatAlipayPayment != null) {
-              onWechatAlipayPayment!(bankName);
-            }
-          } else {
-            // Navigate to QR payment screen for other methods
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => QRPaymentScreen(
-                  bankName: bankName,
-                  amount: amount,
-                  description: description,
-                  publicKey: publicKey,
-                  linkCode: linkCode,
-                  bankUrl: methodUrl,
-                  onPaymentSuccess: onPaymentSuccess,
-                  onPaymentError: onPaymentError,
-                ),
-              ),
-            );
-          }
-        },
+          },
         ),
       ),
     );
@@ -1405,14 +1423,18 @@ class PaymentSuccessScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black87),
+        iconTheme: IconThemeData(
+          color: Theme.of(context).colorScheme.onSurface,
+        ),
         title: Text(
           AppLocalizations.of(context)!.paymentSuccess,
-          style: PhajayTheme.bodyText.copyWith(color: Colors.black87),
+          style: PhajayTheme.bodyText.copyWith(
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
         ),
       ),
       body: Center(
@@ -1435,7 +1457,7 @@ class PaymentSuccessScreen extends StatelessWidget {
                 AppLocalizations.of(context)!.paymentSuccessful,
                 style: PhajayTheme.heading1.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
               const SizedBox(height: 16),
@@ -1443,14 +1465,18 @@ class PaymentSuccessScreen extends StatelessWidget {
                 '${AppLocalizations.of(context)!.amount}: ${formatThousand(amount)} LAK',
                 style: PhajayTheme.heading2.copyWith(
                   fontWeight: FontWeight.w500,
-                  color: Colors.black54,
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withOpacity(0.6),
                 ),
               ),
               const SizedBox(height: 8),
               Text(
                 '${AppLocalizations.of(context)!.transactionId}: $linkCode',
                 style: PhajayTheme.bodyTextSmall.copyWith(
-                  color: Colors.black54,
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withOpacity(0.6),
                 ),
                 textAlign: TextAlign.center,
               ),

@@ -390,101 +390,108 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
   Widget _buildQrExportCard() {
     return RepaintBoundary(
       key: _qrExportBoundaryKey,
-      child: Container(
-        width: 340,
-        padding: const EdgeInsets.fromLTRB(28, 28, 28, 24),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: Colors.grey.shade200, width: 1),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SizedBox(
-              height: 80,
-              child: Image.asset(
-                'packages/flutter_phajay/assets/logo_phajay.png',
-                fit: BoxFit.contain,
-                errorBuilder: (context, error, stackTrace) =>
-                    const SizedBox.shrink(),
+      child: DefaultTextStyle(
+        style: const TextStyle(color: Colors.black87),
+        child: Container(
+          width: 340,
+          padding: const EdgeInsets.fromLTRB(28, 28, 28, 24),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: Colors.grey.shade200, width: 1),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                height: 80,
+                child: Image.asset(
+                  'packages/flutter_phajay/assets/logo_phajay.png',
+                  fit: BoxFit.contain,
+                  errorBuilder: (context, error, stackTrace) =>
+                      const SizedBox.shrink(),
+                ),
               ),
-            ),
-            const SizedBox(height: 20),
-            Container(height: 1, color: Colors.grey.shade200),
-            const SizedBox(height: 20),
-            Text(
-              '${formatThousand(displayAmount)} LAK',
-              style: PhajayTheme.heading1.copyWith(
-                fontSize: 26,
-                color: const Color(0xFF1E3C72),
+              const SizedBox(height: 20),
+              Container(height: 1, color: Colors.grey.shade200),
+              const SizedBox(height: 20),
+              Text(
+                '${formatThousand(displayAmount)} LAK',
+                style: PhajayTheme.heading1.copyWith(
+                  fontSize: 26,
+                  color: const Color(0xFF1E3C72),
+                ),
               ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              widget.description,
-              textAlign: TextAlign.center,
-              style: PhajayTheme.bodyTextSmall.copyWith(color: Colors.black54),
-            ),
-            const SizedBox(height: 20),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.black12),
-                borderRadius: BorderRadius.circular(16),
+              const SizedBox(height: 4),
+              Text(
+                widget.description,
+                textAlign: TextAlign.center,
+                style: PhajayTheme.bodyTextSmall.copyWith(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withOpacity(0.6),
+                ),
               ),
-              child: (qrData != null && qrData!.isNotEmpty)
-                  ? QrImageView(
-                      data: qrData!,
-                      version: QrVersions.auto,
-                      size: 220.0,
-                      backgroundColor: Colors.white,
-                      foregroundColor: Colors.grey.shade800,
-                    )
-                  : const SizedBox(width: 220, height: 220),
-            ),
-            const SizedBox(height: 20),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SizedBox(
-                  width: 22,
-                  height: 22,
-                  child: Image.asset(
-                    _resolveBankLogoPath(),
-                    fit: BoxFit.contain,
-                    errorBuilder: (context, error, stackTrace) =>
-                        const SizedBox.shrink(),
+              const SizedBox(height: 20),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Theme.of(context).dividerColor),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: (qrData != null && qrData!.isNotEmpty)
+                    ? QrImageView(
+                        data: qrData!,
+                        version: QrVersions.auto,
+                        size: 220.0,
+                        backgroundColor: Colors.white,
+                        foregroundColor: Colors.grey.shade800,
+                      )
+                    : const SizedBox(width: 220, height: 220),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(
+                    width: 22,
+                    height: 22,
+                    child: Image.asset(
+                      _resolveBankLogoPath(),
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) =>
+                          const SizedBox.shrink(),
+                    ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  widget.bankName,
-                  style: PhajayTheme.bodyTextSmall.copyWith(
-                    fontWeight: FontWeight.w600,
+                  const SizedBox(width: 8),
+                  Text(
+                    widget.bankName,
+                    style: PhajayTheme.bodyTextSmall.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 14),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.verified_rounded,
-                  size: 14,
-                  color: Colors.grey.shade400,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  'Secured by PhaJay',
-                  style: PhajayTheme.caption.copyWith(
-                    color: Colors.grey.shade500,
+                ],
+              ),
+              const SizedBox(height: 14),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.verified_rounded,
+                    size: 14,
+                    color: Colors.grey.shade400,
                   ),
-                ),
-              ],
-            ),
-          ],
+                  const SizedBox(width: 4),
+                  Text(
+                    'Secured by PhaJay',
+                    style: PhajayTheme.caption.copyWith(
+                      color: Colors.grey.shade500,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -595,12 +602,15 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
     final String logoPath = _resolveBankLogoPath();
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black87),
+          icon: Icon(
+            Icons.arrow_back,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -613,7 +623,10 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
             const SizedBox(width: 8),
             Text(
               AppLocalizations.of(context)!.waitingForPayment,
-              style: const TextStyle(color: Colors.black87, fontSize: 18),
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
+                fontSize: 18,
+              ),
             ),
           ],
         ),
@@ -642,7 +655,7 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
                     style: PhajayTheme.heading1.copyWith(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black87,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                 ],
@@ -650,14 +663,19 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
                 Text(
                   AppLocalizations.of(context)!.description,
                   style: PhajayTheme.bodyTextSmall.copyWith(
-                    color: Colors.black54,
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withOpacity(0.6),
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   "${widget.description}",
                   textAlign: TextAlign.center,
-                  style: const TextStyle(color: Colors.black87, fontSize: 13),
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                    fontSize: 13,
+                  ),
                 ),
                 const SizedBox(height: 20),
 
@@ -675,29 +693,11 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    border: Border.all(color: Colors.black12),
+                    border: Border.all(color: Theme.of(context).dividerColor),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Column(
                     children: [
-                      Text(
-                        AppLocalizations.of(context)!.payWithBankApp,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      SizedBox(
-                        height: 40,
-                        child: Image.asset(
-                          logoPath, // your bank logo
-                          fit: BoxFit.contain,
-                          errorBuilder: (context, error, stackTrace) =>
-                              const SizedBox.shrink(),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
                       Text(
                         AppLocalizations.of(context)!.orScanQR,
                         style: const TextStyle(
@@ -720,7 +720,9 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
                           width: 200,
                           height: 200,
                           decoration: BoxDecoration(
-                            border: Border.all(color: Colors.black12),
+                            border: Border.all(
+                              color: Theme.of(context).dividerColor,
+                            ),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Center(
@@ -874,19 +876,27 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.blue.shade50,
+                    color: Theme.of(context).brightness == Brightness.dark ? Colors.blue.withValues(alpha: 0.15) : Colors.blue.shade50,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
                     AppLocalizations.of(context)!.note,
-                    style: const TextStyle(color: Colors.black87, fontSize: 14),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
+                      fontSize: 14,
+                    ),
                   ),
                 ),
 
                 const SizedBox(height: 16),
                 Text(
                   AppLocalizations.of(context)!.qrInstructions,
-                  style: const TextStyle(color: Colors.black54, fontSize: 13),
+                  style: TextStyle(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withOpacity(0.6),
+                    fontSize: 13,
+                  ),
                 ),
               ],
             ),

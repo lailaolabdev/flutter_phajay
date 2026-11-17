@@ -13,6 +13,10 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  ThemeMode _themeMode = ThemeMode.system;
+
+  void _setThemeMode(ThemeMode mode) => setState(() => _themeMode = mode);
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -22,10 +26,16 @@ class _MyAppState extends State<MyApp> {
         return MaterialApp(
           title: 'Flutter Demo',
           theme: PhajayTheme.lightTheme, // Apply Noto Sans Lao theme
+          darkTheme: PhajayTheme.darkTheme,
+          themeMode: _themeMode,
           locale: PhajayLocalizations.locale,
           localizationsDelegates: PhajayLocalizations.localizationsDelegates,
           supportedLocales: PhajayLocalizations.supportedLocales,
-          home: const MyHomePage(title: 'Flutter Demo Home Page'),
+          home: MyHomePage(
+            title: 'Flutter Demo Home Page',
+            themeMode: _themeMode,
+            onThemeModeChanged: _setThemeMode,
+          ),
         );
       },
     );
@@ -33,9 +43,16 @@ class _MyAppState extends State<MyApp> {
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+  const MyHomePage({
+    super.key,
+    required this.title,
+    required this.themeMode,
+    required this.onThemeModeChanged,
+  });
 
   final String title;
+  final ThemeMode themeMode;
+  final ValueChanged<ThemeMode> onThemeModeChanged;
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -60,12 +77,7 @@ class _MyHomePageState extends State<MyHomePage> {
       // Show Payment Screen
       return Scaffold(
         appBar: AppBar(
-          title: Text(
-            'Payment',
-            style: PhajayTheme.heading2.copyWith(color: Colors.black),
-          ),
-          backgroundColor: Colors.white,
-          foregroundColor: Colors.black,
+          title: Text('Payment', style: PhajayTheme.heading2),
           leading: IconButton(
             icon: Icon(Icons.arrow_back),
             onPressed: () {
@@ -121,6 +133,23 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         backgroundColor: Colors.blue,
         foregroundColor: Colors.white,
+        actions: [
+          PopupMenuButton<ThemeMode>(
+            icon: Icon(switch (widget.themeMode) {
+              ThemeMode.light => Icons.light_mode,
+              ThemeMode.dark => Icons.dark_mode,
+              ThemeMode.system => Icons.brightness_auto,
+            }),
+            tooltip: 'Theme',
+            initialValue: widget.themeMode,
+            onSelected: widget.onThemeModeChanged,
+            itemBuilder: (_) => const [
+              PopupMenuItem(value: ThemeMode.system, child: Text('System')),
+              PopupMenuItem(value: ThemeMode.light, child: Text('Light')),
+              PopupMenuItem(value: ThemeMode.dark, child: Text('Dark')),
+            ],
+          ),
+        ],
       ),
       body: GestureDetector(
         onTap: () {
@@ -136,7 +165,9 @@ class _MyHomePageState extends State<MyHomePage> {
               Container(
                 padding: EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Colors.blue.shade50,
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? Colors.blue.withOpacity(0.15)
+                      : Colors.blue.shade50,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Column(
@@ -146,13 +177,15 @@ class _MyHomePageState extends State<MyHomePage> {
                     Text(
                       'PhaJay Payment Gateway',
                       style: PhajayTheme.heading1.copyWith(
-                        color: Colors.blue.shade800,
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? Colors.blue.shade200
+                            : Colors.blue.shade800,
                       ),
                     ),
                     Text(
                       'Enter payment details to proceed',
                       style: PhajayTheme.bodyText.copyWith(
-                        color: Colors.grey.shade600,
+                        color: Theme.of(context).hintColor,
                       ),
                     ),
                   ],

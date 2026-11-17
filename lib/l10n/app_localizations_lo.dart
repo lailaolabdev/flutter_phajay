@@ -101,7 +101,7 @@ class AppLocalizationsLo extends AppLocalizations {
   String get payWithBankApp => 'ຈ່າຍດ້ວຍແອັບທະນາຄານ';
 
   @override
-  String get orScanQR => 'ຫຼື ສະແກນ QR';
+  String get orScanQR => 'ສະແກນ QR';
 
   @override
   String get generatingQR => 'ກຳລັງສ້າງ QR...';

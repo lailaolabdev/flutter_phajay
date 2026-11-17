@@ -45,30 +45,39 @@ class PhajayTheme {
     );
   }
 
+  /// Dark theme with Noto Sans Lao font
+  static ThemeData get darkTheme {
+    final base = ThemeData.dark();
+    final textTheme = GoogleFonts.notoSansLaoTextTheme(base.textTheme);
+    return base.copyWith(
+      textTheme: textTheme,
+      primaryTextTheme: textTheme,
+    );
+  }
+
   /// Common text styles with Noto Sans Lao
   static TextStyle get heading1 =>
-      notoSansLao(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87);
+      notoSansLao(fontSize: 24, fontWeight: FontWeight.bold);
 
   static TextStyle get heading2 =>
-      notoSansLao(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87);
+      notoSansLao(fontSize: 18, fontWeight: FontWeight.bold);
 
   static TextStyle get heading3 =>
-      notoSansLao(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87);
+      notoSansLao(fontSize: 16, fontWeight: FontWeight.bold);
 
-  static TextStyle get bodyText => 
-      notoSansLao(fontSize: 16, color: Colors.black87);
+  static TextStyle get bodyText => notoSansLao(fontSize: 16);
 
-  static TextStyle get bodyTextSmall => 
-      notoSansLao(fontSize: 14, color: Colors.black87);
+  static TextStyle get bodyTextSmall => notoSansLao(fontSize: 14);
 
-  static TextStyle get caption => 
-      notoSansLao(fontSize: 12, color: Colors.black54);
+  static TextStyle get caption => notoSansLao(fontSize: 12);
 
   /// Button text style
-  static TextStyle get buttonText =>
-      notoSansLao(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.white);
+  static TextStyle get buttonText => notoSansLao(
+    fontSize: 16,
+    fontWeight: FontWeight.w500,
+    color: Colors.white,
+  );
 
   /// Input text style
-  static TextStyle get inputText => 
-      notoSansLao(fontSize: 16, color: Colors.black87);
+  static TextStyle get inputText => notoSansLao(fontSize: 16);
 }

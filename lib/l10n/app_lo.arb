@@ -29,7 +29,7 @@
   "close": "ປິດ",
   "description": "ລາຍລະອຽດ",
   "payWithBankApp": "ຈ່າຍດ້ວຍແອັບທະນາຄານ",
-  "orScanQR": "ຫຼື ສະແກນ QR",
+  "orScanQR": "ສະແກນ QR",
   "generatingQR": "ກຳລັງສ້າງ QR...",
   "qrCodeNotGenerated": "ບໍ່ສາມາດສ້າງ QR ໄດ້",
   "openBankApp": "ເປີດແອັບທະນາຄານ",

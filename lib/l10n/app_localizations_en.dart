@@ -101,7 +101,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get payWithBankApp => 'Pay with bank app';
 
   @override
-  String get orScanQR => 'Or Scan QR';
+  String get orScanQR => 'Scan QR';
 
   @override
   String get generatingQR => 'Generating QR...';

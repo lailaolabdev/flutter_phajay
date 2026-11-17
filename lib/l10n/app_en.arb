@@ -121,7 +121,7 @@
   "@payWithBankApp": {
     "description": "Text for pay with bank app button"
   },
-  "orScanQR": "Or Scan QR",
+  "orScanQR": "Scan QR",
   "@orScanQR": {
     "description": "Text for QR scan option"
   },
