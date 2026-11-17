@@ -599,8 +599,6 @@ class _QRPaymentScreenState extends State<QRPaymentScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final String logoPath = _resolveBankLogoPath();
-
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
