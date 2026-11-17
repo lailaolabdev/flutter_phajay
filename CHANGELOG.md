@@ -1,3 +1,7 @@
+## 0.0.27
+
+* **Chore:** removed an unused local variable in `QRPaymentScreen` (analyzer warning). No behavior change.
+
 ## 0.0.26
 
 * **Feature:** dark mode support. `PaymentLinkScreen`, `QRPaymentScreen` and the credit-card WebView screen now follow the host app's `Theme` (scaffold/AppBar backgrounds, text, icons, dividers, note box) instead of hard-coded light colors, and `PaymentLinkScreen` shows `logo-phajay.png` in dark mode. The exported/saved QR card stays light so it remains scannable.
